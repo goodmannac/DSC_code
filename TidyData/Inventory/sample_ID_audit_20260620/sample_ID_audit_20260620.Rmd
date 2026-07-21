@@ -92,12 +92,12 @@ sample_data_transcribed = sample_data_transcribed_IDs %>% arrange(Sample_ID)
 ## Compare dataframes with Core_ID, fraction, site
 ```{r}
 # compare whole dataframes
-write_csv(core_data_transcribed, "sorted_sIDs_core.csv")
-sIDs_core_file = "sorted_sIDs_core.csv"
+write_csv(core_data_transcribed, "Results/sorted_sIDs_core.csv")
+sIDs_core_file = "Results/sorted_sIDs_core.csv"
 
 sample_data_transcribed_for_diffr = sample_data_transcribed %>% select(-c(Scribe_initials, Subsampling_team))
-write_csv(sample_data_transcribed_for_diffr, "sorted_sIDs_sample.csv")
-sIDs_sample_file = "sorted_sIDs_sample.csv"
+write_csv(sample_data_transcribed_for_diffr, "Results/sorted_sIDs_sample.csv")
+sIDs_sample_file = "Results/sorted_sIDs_sample.csv"
 
 diffr(sIDs_core_file, sIDs_sample_file)
 ```
