@@ -1,0 +1,370 @@
+---
+title: "sample_ID_investigator"
+author: "Anna Goodman"
+date: "2026-06-20"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+I'm updating this file with google drive integration on 21 July 2026!
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(googledrive)
+
+library(tidyverse)
+
+library(diffr)
+```
+
+On June 20, I manually transcribed limited metadata (Sample_ID, Core_ID, fraction) from our field data sheets so we could track down which sample_IDs we were expecting to process in the lab. These files are those transcriptions.  
+```{r}
+# Get and store the metadata of the file you want in a "dribble" (drive tibble)
+core_data_dribble = drive_get("core_data_transcribed_20260620", shared_drive = 'Bogar Lab')
+      # just specify 
+      #   - the name of the file you want ("test_spreadsheet" is a csv in my Individual Research Folder)
+      #   - shared_drive = 'Bogar Lab', since these files aren't in your "My Drive", which this package defaults to searching
+
+core_data_dribble # check to make sure it found the right file, and only found ONE file with this name. If there were multiple, I think you can put more of the path to the file on drive in there
+```
+```{r}
+sample_data_dribble = drive_get("sample_data_transcribed_IDs_20260620", shared_drive = 'Bogar Lab')
+
+sample_data_dribble
+```
+
+```{r}
+# downloading the files into the local version of the DSC_code repository
+drive_download(core_data_dribble, type = "csv", path = "Inputs/core_data_transcribed_20260620_downloaded-20260721.csv")
+
+drive_download(sample_data_dribble, type = "csv", path = "Inputs/sample_data_transcribed_IDs_20260620_downloaded-20260721.csv")
+``` 
+
+```{r}
+core_data_transcribed <- read_csv("Inputs/core_data_transcribed_20260620_downloaded-20260721.csv")
+sample_data_transcribed_IDs <- read_csv("Inputs/sample_data_transcribed_IDs_20260620_downloaded-20260721.csv")
+```
+
+```{r}
+# make vectors of Sample_ID from each source
+core_data_sIDs = core_data_transcribed$Sample_ID
+sorted_sIDs_core = sort(core_data_sIDs)
+
+sample_data_sIDs = sample_data_transcribed_IDs$Sample_ID
+sorted_sIDs_sample = sort(sample_data_sIDs)
+```
+
+## Compare vectors of Sample_IDs only
+```{r}
+  ## which Sample_IDs appear in one but not the other?
+setdiff(sorted_sIDs_core, sorted_sIDs_sample)
+
+# several; not necesarily an issue because deep samples shouldn't appear on sample data sheets from the field
+```
+
+```{r}
+  ## do any appear multiple times in either source?
+sorted_sIDs_core_no_nc = sorted_sIDs_core[!sorted_sIDs_core %in% c("not_collected")] # remove all instances of "not_collected" from Sample_ID column
+
+length(sorted_sIDs_core_no_nc) == length(unique(sorted_sIDs_core_no_nc)) # should return TRUE if no duplicates
+length(sorted_sIDs_sample) == length(unique(sorted_sIDs_sample)) # should return TRUE if no duplicates
+
+#looks like all uniqe for both
+
+        # the same thing another way:
+duplicated(sorted_sIDs_core_no_nc) # all false if no duplicates
+duplicated(sorted_sIDs_sample)
+
+# yep all good
+```
+
+```{r}
+# sort whole dataframes from each source by Sample_ID
+core_data_transcribed = core_data_transcribed %>% arrange(Sample_ID)
+
+sample_data_transcribed = sample_data_transcribed_IDs %>% arrange(Sample_ID)
+```
+
+## Compare dataframes with Core_ID, fraction, site
+```{r}
+# compare whole dataframes
+write_csv(core_data_transcribed, "sorted_sIDs_core.csv")
+sIDs_core_file = "sorted_sIDs_core.csv"
+
+sample_data_transcribed_for_diffr = sample_data_transcribed %>% select(-c(Scribe_initials, Subsampling_team))
+write_csv(sample_data_transcribed_for_diffr, "sorted_sIDs_sample.csv")
+sIDs_sample_file = "sorted_sIDs_sample.csv"
+
+diffr(sIDs_core_file, sIDs_sample_file)
+```
+ 
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .  
+  .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .               
+ .    
+ .  
+ .  
+ .  
+ .  
+ .  
+  .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .               
+ .    
+ .  
+ .  
+ .  
+ .  
+ .  
+  .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+
+- ^ Most of these differences are non-issues; core data includes samples w/ depth > 50cm, and all SOAP Os -- none of which the subsampling crews handled at any point
+
+- Several Core_ID discrepancies, but core was not reliably communicated to subsampling teams; trust core data Core_IDs and disregard sample data Core_IDs; match based on Sample_ID. Explored further below. 
+
+- Only real issue I see is double use of DSC_041 and DSC_042
+  - on original copy of NEWT core data sheet with U-01 and U-02, DSC_041 is assigned to the O fraction of U-K, then crossed out. DSC_042 is assigned to the O fraction of U-X, then crossed out. I didn't transcribe crossed-out values.  
+  - on an original copy of NEWT core data sheet with U-M and U-Z, DSC_041 and DSC_042 are assigned to deep U-Z samples. (150-200cm and 200-300cm, respectively.) These were both part of segment 2 from U-Z, which does not have arrival time recorded but happened sometime between U0Z segment 1 arriving at 13:33 on 17 June 2026 and when segment 1 of U-01 arrived at 2:40PM the same day.
+  - from my memory, U-K and U-X had O horizons sampled by Glade before we broke ground on U-M, during geoprobe failure. Subsampling_start_time is not recorded for DSC_041 on sample data, but it's 13:02 for DSC_042. Seems likely that these Sample_IDs were assigned to the Os but not crossed off on the master list, so the IDs were used again during U-M sampling.  
+
+```{r}
+# trim and format whole dataframes to make them comparable
+
+  # remove Y and Z sample IDs from core data, which should not appear on field subsampling data sheets
+core_data_transcribed = core_data_transcribed %>%
+  filter(fraction != "50-100_cm") %>%
+  filter(fraction != "100-150_cm") %>%
+  filter(fraction != "150-200_cm") %>%
+  filter(fraction != "200-300_cm") %>%
+  filter(fraction != "300-400_cm") %>%
+  filter(fraction != "400-500_cm")
+
+  # arrange both dataframes by core, then fraction, then Sample_ID, so they align nicely in diffr
+sample_data_transcribed_by_core = sample_data_transcribed_for_diffr %>% 
+  arrange(Sample_ID) %>%
+  arrange(fraction) %>%
+  arrange(Core_ID)
+core_data_transcribed_by_core = core_data_transcribed %>% 
+  arrange(Sample_ID) %>%
+  arrange(fraction) %>%
+  arrange(Core_ID)
+```
+
+```{r}
+# compare whole dataframes again, this time only with samples they should share
+write_csv(core_data_transcribed_by_core, "Results/sorted_sIDs_core.csv")
+sIDs_core_file = "Results/sorted_sIDs_core.csv"
+
+write_csv(sample_data_transcribed_by_core, "Results/sorted_sIDs_sample.csv")
+sIDs_sample_file = "Results/sorted_sIDs_sample.csv"
+
+diffr(sIDs_core_file, sIDs_sample_file)
+```
+ 
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .   .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+ .  
+# Explanations for all remaining discrepancies:
+
+### DSC_008 (B-E) missing from sample data: 
+- it was an O at SOAP. Glade collected surface organic matter for each core at SOAP and gave these collections/notes Sample_IDs, but no SOAP cores had enough surface material to justify processing it as an O horizon. Subsampling teams did not see any O samples at SOAP. 
+  
+### DSC_084 is B-F in core data, B-R in sample data:
+- Core_ID was not communicated reliably or thoroughly with subsampling teams (while Sample_ID was). Both sources describe this sample as 15-30 cm. No 15-30 cm sample for B-F is described in sample data. I conclude that DSC_084 is from B-F, and was misattributed to B-R in sample data.
+  
+### DSC_011 (B-F) is missing from sample data:
+- it was an O at SOAP. See above. 
+  
+### DSC_091 is B-H in core data, B-S in sample data:
+- Core_ID was not communicated reliably or thoroughly with subsampling teams (while Sample_ID was). Both sources describe this sample as 0-15 cm. No 0-15 cm sample for B-H is described in sample data. I conclude that DSC_091 is from B-H, and was misattributed to B-S in sample data.
+  
+### DSC_087 (B-H) is missing from sample data:
+- it was an O at SOAP. See above. 
+
+### DSC_079 (B-R) is missing from sample data:
+- it was an O at SOAP. See above. 
+
+### DSC_083 (B-S)= is missing from sample data:
+- it was an O at SOAP. See above. 
+
+### DSC_088 (B-U)= is missing from sample data:
+- it was an O at SOAP. See above. 
+
+### DSC_048 is U-J in core data, U-02 in sample data:
+- Core_ID was not communicated reliably or thoroughly with subsampling teams (while Sample_ID was). Both sources describe this sample as 0-15 cm. No 0-15 cm sample for U-J is described in sample data. I conclude that DSC_048 is from U-J, and was misattributed to U-02 in sample data.
+
+### DSC_041 and DSC_042 appear in sample data but not [this O -> 50cm only version of] core data; see notes after last diffr.
+
+### DSC_052 and DSC_053 are U-W in core data, core not specified in sample data:
+- Core_ID was not communicated reliably or thoroughly with subsampling teams (while Sample_ID was). DSC_052 is 15-30 cm in both sources and DSC_053 is 30-50 cm in both sources. I conclude that DSC_052 and DSC_053 are from U-W.  
+.  
+
+# Actions Anna will take:
+
+### Cross out incorrect Core_IDs on sample data sheets from June field sampling and write correct ones, based on descisions described above. I'll do this in a red pen and date my corrections on the page.
+- DSC_084: correcting B-R -> B-F
+- DSC_091: correcting B-S -> B-H
+- DSC_048: correcting U-02 -> U-J
+
+### Write in missing Core_IDs on sample data sheets from June field sampling. I'll do this with the same red pen and date my corrections on the page. 
+- DSC_052: specifying U-W
+- DSC_053: specifying U-W
+
+### Remove material and cross out all data from U-K and U-X, ensuring that [U-Z 150-200_cm] is the only DSC_041 and [U-Z 200-300_cm] is the only DSC_042.
+- Search for all subsampling vessels that exist from the field processing of the U-K and U-X O horizons, and:
+  - THOROUGHLY cross/black out their Sample_ID labels
+  - write their Core_ID on them
+  - throw them away?
+- Cross out the Sample_IDs (DSC_041 and DSC_042) where they are written on June field sampling sample data sheets with my red pen. Date my corrections on the page. 
+  
+### Make new digital copies of all field datasheets and upload to the drive. Move original digital copies of the field datasheets to a new folder, clearly labeled as archival. 
