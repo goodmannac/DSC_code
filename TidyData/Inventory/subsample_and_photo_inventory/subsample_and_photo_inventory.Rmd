@@ -1,0 +1,72 @@
+---
+title: "subsample_and_photo_inventory"
+output: html_document
+---
+
+```{r}
+library(googledrive)
+
+library(tidyverse)
+
+library(diffr)
+```
+
+This script is for 
+- making a csv that inventories the subsamples and photos we have for each DSC sample, with *traceable* data origins
+- automating the photo inventory
+
+
+#Get a list of all the sample IDs
+- Glade did this manually sometime in late June or early July, after the YZ sample processing was done. We'll use his list
+```{r}
+# Get and store the drive metadata of the file Glade made
+Glades_sID_list = drive_get("what samples exist and what are they called", shared_drive = 'Bogar Lab')
+
+Glades_sID_list # check to make sure we found the right file
+```
+```{r}
+drive_download(Glades_sID_list, type = "csv", path = "Inputs/what samples exist and what are they called_downloaded-20260721.csv")
+```
+
+```{r}
+sID_list_source = read.csv("Inputs/what samples exist and what are they called_downloaded-20260721.csv")
+head(sID_list_source)
+
+sID_list = sID_list_source$Sample_ID
+```
+
+# Get a list of all the photos of each type that we have?
+```{r}
+photo_folder_lab = drive_reveal(drive_get("LAB/PHOTOS", shared_drive = 'Bogar Lab'), "path")
+
+
+```
+
+```{r}
+drive_ls(photo_folder_lab, shared_drive = 'Bogar Lab')
+```
+
+```{r}
+photo_folder_lab_lrr = drive_reveal(drive_get("LAB/PHOTOS/L-ROOT_and_ROCK_photos", shared_drive = 'Bogar Lab'), "path")
+
+lab_lrr_dribble = drive_ls(photo_folder_lab_lrr, shared_drive = 'Bogar Lab')
+lab_lrr_dribble$name
+```
+```{r}
+lab_lrr_photo_names = as.data.frame(lab_lrr_dribble$name)
+
+head(lab_lrr_photo_names)
+
+lab_lrr_photo_names = lab_lrr_photo_names %>%
+  rename(name = `lab_lrr_dribble$name`) %>%
+  separate(name, c("filename", "file_extension"), sep = "K.") %>%
+  separate(filename, c("DSC", "sIDnum", "content1", "content2"), sep = "_") %>%
+  unite(Sample_ID, c(DSC, sIDnum), sep = "_")
+
+head(lab_lrr_photo_names)
+
+```
+
+
+
+
