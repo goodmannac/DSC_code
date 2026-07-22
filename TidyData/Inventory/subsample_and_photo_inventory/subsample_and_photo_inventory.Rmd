@@ -7,8 +7,6 @@ output: html_document
 library(googledrive)
 
 library(tidyverse)
-
-library(diffr)
 ```
 
 This script is for 
@@ -35,36 +33,6 @@ head(sID_list_source)
 sID_list = sID_list_source$Sample_ID
 ```
 
-# Get a list of all the photos of each type that we have?
-```{r}
-photo_folder_lab = drive_reveal(drive_get("LAB/PHOTOS", shared_drive = 'Bogar Lab'), "path")
-```
-
-```{r}
-drive_ls(photo_folder_lab, shared_drive = 'Bogar Lab')
-```
-
-```{r}
-photo_folder_lab_lrr = drive_reveal(drive_get("LAB/PHOTOS/L-ROOT_and_ROCK_photos", shared_drive = 'Bogar Lab'), "path")
-
-lab_lrr_dribble = drive_ls(photo_folder_lab_lrr, shared_drive = 'Bogar Lab')
-lab_lrr_dribble$name
-```
-```{r}
-lab_lrr_photo_names = as.data.frame(lab_lrr_dribble$name) # store the file name column only in a new dataframe
-
-head(lab_lrr_photo_names)
-
-# digest file names into Sample_ID, content specifiers (photo type?), and the file extension
-lab_lrr_photo_names = lab_lrr_photo_names %>% 
-  rename(name = `lab_lrr_dribble$name`) %>%
-  separate(name, c("filename", "file_extension"), sep = "K.") %>% # I don't know why it won't let me split on the "." :(
-  separate(filename, c("DSC", "sIDnum", "content1", "content2"), sep = "_") %>%
-  unite(Sample_ID, c(DSC, sIDnum), sep = "_")
-
-head(lab_lrr_photo_names)
-
-```
 # make blank template for inventory sheet!
 ```{r}
 template = as.data.frame(sID_list)
@@ -78,46 +46,6 @@ template = template %>%
 
 head(template)
 ```
- -------------------------
-version of the lab_lrr_photo_names df creation that keeps all content in one column
-```{r}
-lab_lrr_photo_names = as.data.frame(lab_lrr_dribble$name) # store the file name column only in a new dataframe
-
-head(lab_lrr_photo_names)
-
-# digest file names into Sample_ID, content specifiers (photo type?), and the file extension
-lab_lrr_photo_names = lab_lrr_photo_names %>% 
-  rename(name = `lab_lrr_dribble$name`) %>%
-  separate(name, c("DSC", "sIDnum", "content1", "content2"), sep = "_") %>%
-  unite(Sample_ID, c(DSC, sIDnum), sep = "_") %>%
-  unite(content, c(content1, content2), sep = "_")
-
-head(lab_lrr_photo_names)
-
-```
-adds info about just lab root and rock photos to a blank inventory template
-```{r}
-w_lab_lrr = template %>% 
-  left_join(lab_lrr_photo_names, by = "Sample_ID") %>%
-  mutate(photo_Lroot = case_when(
-    str_detect(content, "L-ROOT") == TRUE ~ "in_drive",
-    .default = "not_accounted_for",
-   )) %>%
-  mutate(photo_ROCK = case_when(
-    str_detect(content, "ROCK") == TRUE ~ "in_drive",
-    .default = "not_accounted_for",
-   ))
-
-View(w_lab_lrr)
-```
-
-
---------------------
-Can I do this but instead of lab_lrr_photo_names, build a dataframe with the name and content of all relevant photos? 
-
-
-
-
 
 
 # Get a list of all the photos we have!
@@ -215,10 +143,131 @@ photo_inventory = template %>%
   mutate(photo_sampleOpen = case_when(
     str_detect(content, "sample-open") == TRUE ~ "in_drive",
     .default = "not_accounted_for",
-   ))
+   )) %>%
+  
+  select(!content) # remove the big messy content column
 
 View(photo_inventory)
 ```
+
+ok now that we know which photos we don't have, we should figure out who's suppoused to have them
+
+# Add photo taker initials from transcribed sample data
+```{r}
+# dribble searching for transcribed sample data for x samples
+X_data_path = drive_reveal(
+  drive_get("X_sample_data_transcribed", shared_drive = 'Bogar Lab'), 
+  "path")
+
+# dribble searching for transcribed sample data for y samples
+Y_data_path = drive_reveal(
+  drive_get("YZ_sample_data_transcribed", shared_drive = 'Bogar Lab'), 
+  "path")
+
+# check that each of these has the one, correct file in it 
+X_data_path
+Y_data_path
+#ok nice
+```
+download the transcribed data from google drive -- and save the path dribbles, for resolving future mix-ups?
+```{r}
+drive_download(X_data_path, type = "csv", path = "Inputs/X_sample_data_transcribed_downloaded-20260722.csv")
+drive_download(Y_data_path, type = "csv", path = "Inputs/YZ_sample_data_transcribed_downloaded-20260722.csv")
+
+write_csv(X_data_path, "Inputs/DRIBBLE_X_sample_data_transcribed_downloaded-20260722.csv") # should we be saving this metadata, in case file names get changed in google drive?
+write_csv(Y_data_path, "Inputs/DRIBBLE_YZ_sample_data_transcribed_downloaded-20260722.csv") # should we be saving this metadata, in case file names get changed in google drive?
+
+```
+
+read the transcribed data into the R enviornment
+```{r}
+x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260722.csv", col_names = FALSE)
+y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260722.csv", col_names = FALSE)
+
+#Rename the columns with their Sample_IDs
+
+sampleIDrow = which(x_data[[1]] == "Sample_ID") # find which row # contains all the Sample_IDs
+colnames(x_data) = as.character(x_data[sampleIDrow,]) # make Sample_IDs the column names
+x_data = x_data %>%
+  rename(futureColumn = Sample_ID) %>% # rename the first column, which actually contains all the future column names (variable names? measurement names?)
+  slice(-sampleIDrow) # important to take the sample_ID row out so pivoting doesn't get confused later
+head(x_data)
+
+sampleIDrow = which(y_data[[1]] == "Sample_ID")
+colnames(y_data) = as.character(y_data[sampleIDrow,])
+y_data = y_data %>%
+  rename(futureColumn = Sample_ID) %>%
+  slice(-sampleIDrow)
+
+head(y_data)
+```
+
+Pivot to get sample_ID as its own column and all the measurements in rows
+  -- long first
+```{r}
+x_data_long = x_data %>%
+  pivot_longer(cols = !futureColumn, 
+               names_to = "Sample_ID", 
+               values_to = "value"
+               ) 
+head(x_data_long)
+
+y_data_long = y_data %>%
+  pivot_longer(cols = !futureColumn, 
+               names_to = "Sample_ID", 
+               values_to = "value"
+               ) 
+head(y_data_long)
+```
+  -- then wide
+```{r}
+x_data_wide = x_data_long %>%
+  pivot_wider(names_from = futureColumn, 
+              values_from = value)
+
+head(x_data_wide)
+
+y_data_wide = y_data_long %>%
+  pivot_wider(names_from = futureColumn, 
+              values_from = value)
+
+head(y_data_wide)
+```
+NOW add photo takers to inventory
+```{r}
+y_photo_takers = y_data_wide %>%
+  select(c(Sample_ID, Lroot_photo_by, rock_photo_by, pre_trim_photo_by, post_trim_photo_by))
+
+photo_inventory_w_yinitials = photo_inventory %>%
+  left_join(y_photo_takers) %>%
+  mutate(sampleOpen_photo_by = post_trim_photo_by,
+         sampleClosed_photo_by = pre_trim_photo_by) %>%
+  select(!c(pre_trim_photo_by, post_trim_photo_by))
+
+x_photo_takers = x_data_wide %>%
+  select(c(Sample_ID, Lroot_and_rock_photos_by))
+
+photo_inventory_w_initials = photo_inventory_w_yinitials %>%
+  left_join(x_photo_takers) %>%
+  mutate(
+    rock_photo_by = case_when( #rock_photo_by is currently whatever it was on the YZ sample data, or (ideally) NA (the data class) for X samples
+    is.na(rock_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ Lroot_and_rock_photos_by, # where rock_photo_by is of class NA (not "N/A" as a character entry, as it would be if evan transcribed it that way), but the X sample data has a set of initials in Lroot_and_rock_photos_by for this sample ID, put those initials in rock_photo_by
+    !is.na(rock_photo_by) & is.na(Lroot_and_rock_photos_by) ~ rock_photo_by, # where there were rock photo initials recorded on the YZ data sheets but not on the X data sheets, use the data from the YZ data sheets
+    !is.na(rock_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ "error: initials recorded on both X and YZ sample data",
+    is.na(rock_photo_by) & is.na(Lroot_and_rock_photos_by) ~ "no photo taker recorded in sample data"
+                            ),
+    Lroot_photo_by = case_when( #Lroot_photo_by is currently whatever it was on the YZ sample data, or (ideally) NA (the data class) for X samples
+    is.na(Lroot_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ Lroot_and_rock_photos_by, # where rock_photo_by is of class NA (not "N/A" as a character entry, as it would be if evan transcribed it that way), but the X sample data has a set of initials in Lroot_and_rock_photos_by for this sample ID, put those initials in Lroot_photo_by
+    !is.na(Lroot_photo_by) & is.na(Lroot_and_rock_photos_by) ~ Lroot_photo_by, # where there were rock photo initials recorded on the YZ data sheets but not on the X data sheets, use the data from the YZ data sheets
+    !is.na(Lroot_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ "error: initials recorded on both X and YZ sample data",
+    is.na(Lroot_photo_by) & is.na(Lroot_and_rock_photos_by) ~ "no photo taker recorded in sample data"
+                            )
+    )%>%
+  select(!Lroot_and_rock_photos_by)
+  
+View(photo_inventory_w_initials)
+```
+
 
 
 
