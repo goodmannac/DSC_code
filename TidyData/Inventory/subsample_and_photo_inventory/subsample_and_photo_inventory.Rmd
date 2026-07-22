@@ -38,8 +38,6 @@ sID_list = sID_list_source$Sample_ID
 # Get a list of all the photos of each type that we have?
 ```{r}
 photo_folder_lab = drive_reveal(drive_get("LAB/PHOTOS", shared_drive = 'Bogar Lab'), "path")
-
-
 ```
 
 ```{r}
@@ -53,20 +51,174 @@ lab_lrr_dribble = drive_ls(photo_folder_lab_lrr, shared_drive = 'Bogar Lab')
 lab_lrr_dribble$name
 ```
 ```{r}
-lab_lrr_photo_names = as.data.frame(lab_lrr_dribble$name)
+lab_lrr_photo_names = as.data.frame(lab_lrr_dribble$name) # store the file name column only in a new dataframe
 
 head(lab_lrr_photo_names)
 
-lab_lrr_photo_names = lab_lrr_photo_names %>%
+# digest file names into Sample_ID, content specifiers (photo type?), and the file extension
+lab_lrr_photo_names = lab_lrr_photo_names %>% 
   rename(name = `lab_lrr_dribble$name`) %>%
-  separate(name, c("filename", "file_extension"), sep = "K.") %>%
+  separate(name, c("filename", "file_extension"), sep = "K.") %>% # I don't know why it won't let me split on the "." :(
   separate(filename, c("DSC", "sIDnum", "content1", "content2"), sep = "_") %>%
   unite(Sample_ID, c(DSC, sIDnum), sep = "_")
 
 head(lab_lrr_photo_names)
 
 ```
+# make blank template for inventory sheet!
+```{r}
+template = as.data.frame(sID_list)
 
+template = template %>%
+  mutate(photo_Lroot = "not_accounted_for") %>%
+  mutate(photo_ROCK = "not_accounted_for") %>%
+  mutate(photo_sampleClosed = "not_accounted_for") %>%
+  mutate(photo_sampleOpen = "not_accounted_for") %>%
+  rename(Sample_ID = sID_list)
+
+head(template)
+```
+ -------------------------
+version of the lab_lrr_photo_names df creation that keeps all content in one column
+```{r}
+lab_lrr_photo_names = as.data.frame(lab_lrr_dribble$name) # store the file name column only in a new dataframe
+
+head(lab_lrr_photo_names)
+
+# digest file names into Sample_ID, content specifiers (photo type?), and the file extension
+lab_lrr_photo_names = lab_lrr_photo_names %>% 
+  rename(name = `lab_lrr_dribble$name`) %>%
+  separate(name, c("DSC", "sIDnum", "content1", "content2"), sep = "_") %>%
+  unite(Sample_ID, c(DSC, sIDnum), sep = "_") %>%
+  unite(content, c(content1, content2), sep = "_")
+
+head(lab_lrr_photo_names)
+
+```
+adds info about just lab root and rock photos to a blank inventory template
+```{r}
+w_lab_lrr = template %>% 
+  left_join(lab_lrr_photo_names, by = "Sample_ID") %>%
+  mutate(photo_Lroot = case_when(
+    str_detect(content, "L-ROOT") == TRUE ~ "in_drive",
+    .default = "not_accounted_for",
+   )) %>%
+  mutate(photo_ROCK = case_when(
+    str_detect(content, "ROCK") == TRUE ~ "in_drive",
+    .default = "not_accounted_for",
+   ))
+
+View(w_lab_lrr)
+```
+
+
+--------------------
+Can I do this but instead of lab_lrr_photo_names, build a dataframe with the name and content of all relevant photos? 
+
+
+
+
+
+
+# Get a list of all the photos we have!
+
+Get the location of all of our photo folders on google drive
+```{r}
+# lab photos
+photo_folder_lab = drive_reveal(
+  drive_get("JUNE_original_data_notes_photos/LAB/PHOTOS", shared_drive = 'Bogar Lab'), 
+  "path")
+
+# field photos
+photo_folder_field = drive_reveal(
+  drive_get("JUNE_original_data_notes_photos/FIELD/PHOTOS", shared_drive = 'Bogar Lab'), 
+  "path")
+
+# drive_get() searches the specified shared google drive (Bogar Lab) attached to my drive account for the file I specified
+# drive_reveal() finds and stores even more specific metadata; in this case, the full file path. 
+```
+Get a list of all the subfolders in those photo folders
+```{r}
+photo_subfolders_lab = drive_ls(photo_folder_lab, shared_drive = 'Bogar Lab')
+photo_subfolders_field = drive_ls(photo_folder_field, shared_drive = 'Bogar Lab')
+
+```
+bind those lists together; now we have a list of all the internal google drive identifiers of 
+```{r}
+photo_subfolder_IDs = append(photo_subfolders_lab$id, photo_subfolders_field$id) 
+```
+
+```{r}
+photo_subfolder_contents = lapply(as_id(photo_subfolder_IDs),
+  drive_ls)
+
+photo_subfolder_contents # ok this is a list of dribbles which each contains a list of filenames
+
+photo_filenames = c()
+for (var in photo_subfolder_contents) {
+  photo_filenames = append(photo_filenames, var$name)
+}
+photo_filenames # ok yay we have a vector of all the photo filenames!
+```
+
+
+version of the lab_lrr_photo_names df creation that keeps all content in one column
+```{r}
+photo_names_df = as.data.frame(photo_filenames) # store the file names in a dataframe
+
+head(photo_names_df)
+```
+
+```{r}
+# digest file names into Sample_ID, content specifiers (photo type?), and the file extension
+photo_content_df = photo_names_df %>% 
+  rename(name = photo_filenames) %>%
+  separate(name, c("DSC", "sIDnum", "content1", "content2"), sep = "_") %>% # separate by _. Having multiple content columns is necesary for cases where there's an underscore in the file name after the one that separates the sample ID from the content -- but I'll just unite them again below. This also generates some _NA when there isn't an underscore in the latter part of the content
+  unite(Sample_ID, c(DSC, sIDnum), sep = "_") %>% # puts DSC_[sample number] back together as the full sample id
+  unite(content, c(content1, content2), sep = "_") %>% # puts everything else back together
+  mutate(content = str_remove(content, "_NA")) # take out those extra NAs I generated above for readability later
+
+head(photo_content_df)
+
+```
+Make the photo inventory!
+```{r}
+photo_inventory = template %>% 
+  
+  left_join(photo_content_df, by = "Sample_ID") %>% # Joins the photo names dataframe to our template; makes a dataframe with all the possible DSC sample IDs in one column and the rest of the photo filenames in another (the "content" column). Sample_IDs are repeated for each unique photo, and are present with "NA" in the content columns if we have no photo
+
+  group_by(Sample_ID) %>%
+  summarise(
+    content = str_flatten(content, ";")) %>% # this and the line before it work together to make the dataframe have each sample ID only once, and makes the content column a long messy string of all the remaining photo name content
+
+  # log which sample IDs have an Lroot photo
+  mutate(photo_Lroot = case_when(
+    str_detect(content, "L-ROOT") == TRUE ~ "in_drive",
+    str_detect(content, "Lroot") == TRUE ~ "in_drive",
+    .default = "not_accounted_for",
+   )) %>%
+  
+    # log which sample IDs have a rock photo
+  mutate(photo_ROCK = case_when(
+    str_detect(content, "ROCK") == TRUE ~ "in_drive",
+    str_detect(content, "rock") == TRUE ~ "in_drive",
+    .default = "not_accounted_for",
+   )) %>%
+  
+  # log which sample IDs have a sample-closed photo
+  mutate(photo_sampleClosed = case_when(
+    str_detect(content, "sample-closed") == TRUE ~ "in_drive",
+    .default = "not_accounted_for",
+   )) %>%
+  
+  # log which sample IDs have a sample-open photo
+  mutate(photo_sampleOpen = case_when(
+    str_detect(content, "sample-open") == TRUE ~ "in_drive",
+    .default = "not_accounted_for",
+   ))
+
+View(photo_inventory)
+```
 
 
 
