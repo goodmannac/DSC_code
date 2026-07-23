@@ -70,12 +70,10 @@ Get a list of all the subfolders in those photo folders
 photo_subfolders_lab = drive_ls(photo_folder_lab, shared_drive = 'Bogar Lab')
 photo_subfolders_field = drive_ls(photo_folder_field, shared_drive = 'Bogar Lab')
 
-```
-bind those lists together; now we have a list of all the internal google drive identifiers of 
-```{r}
-photo_subfolder_IDs = append(photo_subfolders_lab$id, photo_subfolders_field$id) 
+photo_subfolder_IDs = append(photo_subfolders_lab$id, photo_subfolders_field$id) # bind those lists together; now we have a list of all the internal google drive identifiers of our photo-containing folders
 ```
 
+Get a list of all the file names in all these folders
 ```{r}
 photo_subfolder_contents = lapply(as_id(photo_subfolder_IDs),
   drive_ls)
@@ -90,7 +88,6 @@ photo_filenames # ok yay we have a vector of all the photo filenames!
 ```
 
 
-version of the lab_lrr_photo_names df creation that keeps all content in one column
 ```{r}
 photo_names_df = as.data.frame(photo_filenames) # store the file names in a dataframe
 
@@ -171,18 +168,18 @@ Y_data_path
 ```
 download the transcribed data from google drive -- and save the path dribbles, for resolving future mix-ups?
 ```{r}
-drive_download(X_data_path, type = "csv", path = "Inputs/X_sample_data_transcribed_downloaded-20260722.csv")
-drive_download(Y_data_path, type = "csv", path = "Inputs/YZ_sample_data_transcribed_downloaded-20260722.csv")
+drive_download(X_data_path, type = "csv", path = "Inputs/X_sample_data_transcribed_downloaded-20260722PM.csv")
+drive_download(Y_data_path, type = "csv", path = "Inputs/YZ_sample_data_transcribed_downloaded-20260722PM.csv")
 
-write_csv(X_data_path, "Inputs/DRIBBLE_X_sample_data_transcribed_downloaded-20260722.csv") # should we be saving this metadata, in case file names get changed in google drive?
-write_csv(Y_data_path, "Inputs/DRIBBLE_YZ_sample_data_transcribed_downloaded-20260722.csv") # should we be saving this metadata, in case file names get changed in google drive?
+write_csv(X_data_path, "Inputs/DRIBBLE_X_sample_data_transcribed_downloaded-20260722PM.csv") # should we be saving this metadata, in case file names get changed in google drive?
+write_csv(Y_data_path, "Inputs/DRIBBLE_YZ_sample_data_transcribed_downloaded-20260722PM.csv") # should we be saving this metadata, in case file names get changed in google drive?
 
 ```
 
 read the transcribed data into the R enviornment
 ```{r}
-x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260722.csv", col_names = FALSE)
-y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260722.csv", col_names = FALSE)
+x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260722PM.csv", col_names = FALSE)
+y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260722PM.csv", col_names = FALSE)
 
 #Rename the columns with their Sample_IDs
 
@@ -238,36 +235,56 @@ NOW add photo takers to inventory
 y_photo_takers = y_data_wide %>%
   select(c(Sample_ID, Lroot_photo_by, rock_photo_by, pre_trim_photo_by, post_trim_photo_by))
 
-photo_inventory_w_yinitials = photo_inventory %>%
-  left_join(y_photo_takers) %>%
-  mutate(sampleOpen_photo_by = post_trim_photo_by,
-         sampleClosed_photo_by = pre_trim_photo_by) %>%
-  select(!c(pre_trim_photo_by, post_trim_photo_by))
-
 x_photo_takers = x_data_wide %>%
   select(c(Sample_ID, Lroot_and_rock_photos_by, Core_ID, fraction))
 
-photo_inventory_w_initials = photo_inventory_w_yinitials %>%
+
+photo_inventory_w_initials = photo_inventory %>%
+  left_join(y_photo_takers) %>%
   left_join(x_photo_takers) %>%
   mutate(
     rock_photo_by = case_when( #rock_photo_by is currently whatever it was on the YZ sample data, or (ideally) NA (the data class) for X samples
     is.na(rock_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ Lroot_and_rock_photos_by, # where rock_photo_by is of class NA (not "N/A" as a character entry, as it would be if evan transcribed it that way), but the X sample data has a set of initials in Lroot_and_rock_photos_by for this sample ID, put those initials in rock_photo_by
     !is.na(rock_photo_by) & is.na(Lroot_and_rock_photos_by) ~ rock_photo_by, # where there were rock photo initials recorded on the YZ data sheets but not on the X data sheets, use the data from the YZ data sheets
     !is.na(rock_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ "error: initials recorded on both X and YZ sample data",
-    is.na(rock_photo_by) & is.na(Lroot_and_rock_photos_by) ~ "no photo taker recorded in sample data"
+    is.na(rock_photo_by) & is.na(Lroot_and_rock_photos_by) ~ "photo taker missing from transcribed data"
                             ),
     Lroot_photo_by = case_when( #Lroot_photo_by is currently whatever it was on the YZ sample data, or (ideally) NA (the data class) for X samples
-    is.na(Lroot_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ Lroot_and_rock_photos_by, # where rock_photo_by is of class NA (not "N/A" as a character entry, as it would be if evan transcribed it that way), but the X sample data has a set of initials in Lroot_and_rock_photos_by for this sample ID, put those initials in Lroot_photo_by
+    is.na(Lroot_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ Lroot_and_rock_photos_by, # where Lroot_photo_by is of class NA (not "N/A" as a character entry, as it would be if evan transcribed it that way), but the X sample data has a set of initials in Lroot_and_rock_photos_by for this sample ID, put those initials in Lroot_photo_by
     !is.na(Lroot_photo_by) & is.na(Lroot_and_rock_photos_by) ~ Lroot_photo_by, # where there were rock photo initials recorded on the YZ data sheets but not on the X data sheets, use the data from the YZ data sheets
     !is.na(Lroot_photo_by) & !is.na(Lroot_and_rock_photos_by) ~ "error: initials recorded on both X and YZ sample data",
-    is.na(Lroot_photo_by) & is.na(Lroot_and_rock_photos_by) ~ "no photo taker recorded in sample data"
-                            )
-    )%>%
-  select(!Lroot_and_rock_photos_by)
+    is.na(Lroot_photo_by) & is.na(Lroot_and_rock_photos_by) ~ "photo taker missing from transcribed data"
+                            ),
+    sampleOpen_photo_by = case_when( #this is currently whatever it was on the YZ sample data, or (ideally) NA (the data class) for X samples
+    !is.na(post_trim_photo_by) ~ post_trim_photo_by, # if post_trim_photo_by is not NA (the data class), make sampleOpen_photo_by = to that value
+    is.na(post_trim_photo_by) & !is.na(Core_ID) ~ "none; sieved in the field", # if post_trim_photo_by is NA (the data class), AND there's no value in Core_ID, it's from the field. I brought in the Core_ID data from the x sample datasheet, it wasn't on the Y. So if there's anything in the Core_ID column, we know that there shouldn't actually be a one of these photos
+    is.na(post_trim_photo_by) & is.na(Core_ID) ~ "photo taker missing from transcribed data"
+                            ),
+    sampleClosed_photo_by = case_when( #this is currently whatever it was on the YZ sample data, or (ideally) NA (the data class) for X samples
+    !is.na(pre_trim_photo_by) ~ pre_trim_photo_by, # if pre_trim_photo_by is not NA (the data class), make sampleClosed_photo_by = to that value
+    is.na(pre_trim_photo_by) & !is.na(Core_ID) ~ "none; sieved in the field", # if pre_trim_photo_by is NA (the data class), AND there's no value in Core_ID, it's from the field. I brought in the Core_ID data from the x sample datasheet, it wasn't on the Y. So if there's anything in the Core_ID column, we know that there shouldn't actually be a one of these photos
+    is.na(post_trim_photo_by) & is.na(Core_ID) ~ "photo taker missing from transcribed data"
+                            ),
+    photo_sampleClosed = case_when(
+      sampleClosed_photo_by != "none; sieved in the field" ~ photo_sampleClosed,
+      sampleClosed_photo_by == "none; sieved in the field" ~ "none; sieved in the field",
+
+         ),
+    photo_sampleOpen = case_when(
+      sampleOpen_photo_by != "none; sieved in the field" ~ photo_sampleOpen,
+      sampleOpen_photo_by == "none; sieved in the field" ~ "none; sieved in the field",
+
+       )
+    ) %>%
+  select(!Lroot_and_rock_photos_by) %>%
+  select(!c(pre_trim_photo_by, post_trim_photo_by))
+
   
 View(photo_inventory_w_initials)
 ```
-investigate inconsistencies in above result
+investigate inconsistencies in above result 
+
+initials recorded in both data sheets -- only relevant during 202060722 AM! I found the errors and corrected them
 ```{r}
 # DSC_092 and DSC_024 both have the "error: initials recorded on both X and YZ sample data" message
 DSC_092X = x_data_wide[which(x_data_wide[[1]] == "DSC_092"), ]
@@ -292,6 +309,19 @@ DSC_024Y
 # Checked original copies; the yz data entry should have been DSC_027. I corrected this in google sheets and left a note in notes_during_transcription.
 ```
 
+"photo taker missing from transcribed data"
+```{r}
+
+indicies = which(photo_inventory_w_initials[["Lroot_photo_by"]] == "photo taker missing from transcribed data")
+
+sIDs_missing_initials = photo_inventory_w_initials[indicies, ]$Sample_ID
+
+indicies2 = which(y_data_wide[["Sample_ID"]] %in% sIDs_missing_initials)
+
+YZ_missing_initials = y_data_wide[indicies2, ]
+
+View(YZ_missing_initials)
+```
 
 
 
