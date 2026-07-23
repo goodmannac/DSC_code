@@ -143,7 +143,7 @@ photo_inventory = template %>%
   mutate(photo_sampleOpen = case_when(
     str_detect(content, "sample-open") == TRUE ~ "in_drive",
     .default = "not_accounted_for",
-   )) %>%
+   )) %>% 
   
   select(!content) # remove the big messy content column
 
@@ -245,7 +245,7 @@ photo_inventory_w_yinitials = photo_inventory %>%
   select(!c(pre_trim_photo_by, post_trim_photo_by))
 
 x_photo_takers = x_data_wide %>%
-  select(c(Sample_ID, Lroot_and_rock_photos_by))
+  select(c(Sample_ID, Lroot_and_rock_photos_by, Core_ID, fraction))
 
 photo_inventory_w_initials = photo_inventory_w_yinitials %>%
   left_join(x_photo_takers) %>%
@@ -267,6 +267,31 @@ photo_inventory_w_initials = photo_inventory_w_yinitials %>%
   
 View(photo_inventory_w_initials)
 ```
+investigate inconsistencies in above result
+```{r}
+# DSC_092 and DSC_024 both have the "error: initials recorded on both X and YZ sample data" message
+DSC_092X = x_data_wide[which(x_data_wide[[1]] == "DSC_092"), ]
+
+DSC_092Y = y_data_wide[which(y_data_wide[[1]] == "DSC_092"), ]
+
+DSC_092X
+DSC_092Y
+
+# Checked original copies; the x data entry should have been DSC_097. I corrected this in google sheets and left a note in notes_during_transcription.
+
+```
+```{r}
+# DSC_092 and DSC_024 both have the "error: initials recorded on both X and YZ sample data" message
+DSC_024X = x_data_wide[which(x_data_wide[[1]] == "DSC_024"), ]
+
+DSC_024Y = y_data_wide[which(y_data_wide[[1]] == "DSC_024"), ]
+
+DSC_024X
+DSC_024Y
+
+# Checked original copies; the yz data entry should have been DSC_027. I corrected this in google sheets and left a note in notes_during_transcription.
+```
+
 
 
 
