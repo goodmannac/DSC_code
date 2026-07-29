@@ -57,13 +57,17 @@ photo_folder_lab = drive_reveal(
   drive_get("JUNE_original_data_notes_photos/LAB/PHOTOS", shared_drive = 'Bogar Lab'), 
   "path")
 
+# drive_get() searches the specified shared google drive (Bogar Lab) attached to my drive account for the file I specified
+# drive_reveal() finds and stores even more specific metadata; in this case, the full file path. 
+```
+
+```{r}
 # field photos
 photo_folder_field = drive_reveal(
   drive_get("JUNE_original_data_notes_photos/FIELD/PHOTOS", shared_drive = 'Bogar Lab'), 
   "path")
 
-# drive_get() searches the specified shared google drive (Bogar Lab) attached to my drive account for the file I specified
-# drive_reveal() finds and stores even more specific metadata; in this case, the full file path. 
+# this chunk the same as the one before. needs to be in a separate chunk to not hit usage limits
 ```
 Get a list of all the subfolders in those photo folders
 ```{r}
@@ -80,10 +84,12 @@ photo_subfolder_contents = lapply(as_id(photo_subfolder_IDs),
 
 photo_subfolder_contents # ok this is a list of dribbles which each contains a list of filenames
 
+# iterate through that list, extracting the filenames from each dribble and adding them to a new vector
 photo_filenames = c()
 for (var in photo_subfolder_contents) {
   photo_filenames = append(photo_filenames, var$name)
-}
+} 
+
 photo_filenames # ok yay we have a vector of all the photo filenames!
 ```
 
@@ -120,6 +126,8 @@ photo_inventory = template %>%
   mutate(photo_Lroot = case_when(
     str_detect(content, "L-ROOT") == TRUE ~ "in_drive",
     str_detect(content, "Lroot") == TRUE ~ "in_drive",
+    str_detect(content, "LROOT") == TRUE ~ "in_drive",
+    str_detect(content, "lroot") == TRUE ~ "in_drive",
     .default = "not_accounted_for",
    )) %>%
   
@@ -144,7 +152,6 @@ photo_inventory = template %>%
   
   select(!content) # remove the big messy content column
 
-View(photo_inventory)
 ```
 
 ok now that we know which photos we don't have, we should figure out who's suppoused to have them
@@ -168,18 +175,19 @@ Y_data_path
 ```
 download the transcribed data from google drive -- and save the path dribbles, for resolving future mix-ups?
 ```{r}
-drive_download(X_data_path, type = "csv", path = "Inputs/X_sample_data_transcribed_downloaded-20260722PM.csv")
-drive_download(Y_data_path, type = "csv", path = "Inputs/YZ_sample_data_transcribed_downloaded-20260722PM.csv")
+drive_download(X_data_path, type = "csv", path = "Inputs/X_sample_data_transcribed_downloaded-20260723-3PM.csv")
+drive_download(Y_data_path, type = "csv", path = "Inputs/YZ_sample_data_transcribed_downloaded-20260723-3PM.csv")
 
-write_csv(X_data_path, "Inputs/DRIBBLE_X_sample_data_transcribed_downloaded-20260722PM.csv") # should we be saving this metadata, in case file names get changed in google drive?
-write_csv(Y_data_path, "Inputs/DRIBBLE_YZ_sample_data_transcribed_downloaded-20260722PM.csv") # should we be saving this metadata, in case file names get changed in google drive?
+# decided not to be saving dribbles as below
+### write_csv(X_data_path, "Inputs/DRIBBLE_X_sample_data_transcribed_downloaded-20260722PM.csv") # should we be saving this metadata, in case file names get changed in google drive?
+### write_csv(Y_data_path, "Inputs/DRIBBLE_YZ_sample_data_transcribed_downloaded-20260722PM.csv") # should we be saving this metadata, in case file names get changed in google drive?
 
 ```
 
 read the transcribed data into the R enviornment
 ```{r}
-x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260722PM.csv", col_names = FALSE)
-y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260722PM.csv", col_names = FALSE)
+x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260723-3PM.csv", col_names = FALSE)
+y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260723-3PM.csv", col_names = FALSE)
 
 #Rename the columns with their Sample_IDs
 
@@ -233,10 +241,10 @@ head(y_data_wide)
 NOW add photo takers to inventory
 ```{r}
 y_photo_takers = y_data_wide %>%
-  select(c(Sample_ID, Lroot_photo_by, rock_photo_by, pre_trim_photo_by, post_trim_photo_by))
+  select(c(Sample_ID, Lroot_photo_by, rock_photo_by, pre_trim_photo_by, post_trim_photo_by, Notes_during_collection, Notes_during_transcription))
 
 x_photo_takers = x_data_wide %>%
-  select(c(Sample_ID, Lroot_and_rock_photos_by, Core_ID, fraction))
+  select(c(Sample_ID, Lroot_and_rock_photos_by, Core_ID, fraction, notes_during_collection_annotations, notes_during_collection_narritive, notes_during_transcription_AG, notes_during_transcription_EF))
 
 
 photo_inventory_w_initials = photo_inventory %>%
@@ -274,14 +282,173 @@ photo_inventory_w_initials = photo_inventory %>%
       sampleOpen_photo_by != "none; sieved in the field" ~ photo_sampleOpen,
       sampleOpen_photo_by == "none; sieved in the field" ~ "none; sieved in the field",
 
-       )
+       ),
+    photo_Lroot = case_when(
+      Lroot_photo_by != "N/A" ~ photo_Lroot,
+      Lroot_photo_by == "N/A" ~ "'N/A' marked on datasheet",
+
+       ),
+    photo_ROCK = case_when(
+      rock_photo_by != "N/A" ~ photo_ROCK,
+      rock_photo_by == "N/A" ~ "'N/A' marked on datasheet",
+
+       ) 
+    
     ) %>%
   select(!Lroot_and_rock_photos_by) %>%
   select(!c(pre_trim_photo_by, post_trim_photo_by))
 
-  
-View(photo_inventory_w_initials)
 ```
+
+highlight missing photos in simplified dataframe
+```{r}
+missing_photo_blame = photo_inventory_w_initials %>%
+  filter(photo_Lroot == "not_accounted_for" |
+             photo_ROCK == "not_accounted_for"|
+             photo_sampleClosed == "not_accounted_for" |
+             photo_sampleOpen == "not_accounted_for") %>%
+  select(c(Sample_ID,
+           photo_Lroot, Lroot_photo_by, 
+           photo_ROCK, rock_photo_by, 
+           photo_sampleOpen, sampleOpen_photo_by, 
+           photo_sampleClosed, sampleClosed_photo_by,
+           notes_during_collection_annotations,
+           notes_during_collection_narritive,
+           notes_during_transcription_AG,
+           notes_during_transcription_EF,
+           Notes_during_collection,
+           Notes_during_transcription))
+
+```
+
+investigate samples w/out photos; remove rows for samples that we don't expect photos from, noting explanations
+```{r}
+missing_photo_blame_trimmed = missing_photo_blame %>%
+
+           # DSC_001 - DSC_007 are march survey samples; we did not take organized photos of those.
+  filter(Sample_ID != "DSC_001" &
+         Sample_ID != "DSC_002" &
+         Sample_ID != "DSC_003" &
+         Sample_ID != "DSC_004" &
+         Sample_ID != "DSC_005" &
+         Sample_ID != "DSC_006" &
+         Sample_ID != "DSC_007" & 
+          Sample_ID != "" # remove artifact row at the top with no Sample_ID
+         )
+
+
+          # some samples are marked in glade's "what samples exist and what are they called" as "litter only". Hopefully we still have images of the litter in the bags; I think evan named these photos as sample-closed. so we should not expect Lroot or rock or sample-open photos, but should expect sample-closed photos from these. 
+gladeNotes = sID_list_source %>%
+  select(Sample_ID, Notes) %>%
+  rename(GDB_inventory_notes = Notes)
+
+missing_photo_blame_trimmed = missing_photo_blame_trimmed %>%
+  left_join(gladeNotes, by = "Sample_ID") %>%
+  mutate(
+    photo_Lroot = case_when(
+      GDB_inventory_notes != "litter only" ~ photo_Lroot,
+      GDB_inventory_notes == "litter only" ~ "none expected; litter only"),
+    photo_ROCK = case_when(
+      GDB_inventory_notes != "litter only" ~ photo_ROCK,
+      GDB_inventory_notes == "litter only" ~ "none expected; litter only"),
+    photo_sampleOpen = case_when(
+      GDB_inventory_notes != "litter only" ~ photo_sampleOpen,
+      GDB_inventory_notes == "litter only" ~ "none expected; litter only")) %>%
+
+    filter(photo_Lroot == "not_accounted_for" | # re-filter now that we've updated what's accounted for
+             photo_ROCK == "not_accounted_for"|
+             photo_sampleClosed == "not_accounted_for" |
+             photo_sampleOpen == "not_accounted_for") %>%
+
+          # DSC_048 has no Lroot or Rock photos. from transcribed notes: "Empteid LRoot+Rock container before a photo could be taken. Everything cool time not recorded". Sieved in field so no sample tube photos expected. 
+    filter(Sample_ID != "DSC_048") %>%
+
+          # ok actually we're taking out all ther litter only samples right now for simplicity
+    filter(GDB_inventory_notes != "litter only") %>%
+  
+          # DSC_016: photos are representing both A and B. 
+    
+
+head(missing_photo_blame_trimmed)
+length(missing_photo_blame_trimmed$Sample_ID)
+View(missing_photo_blame_trimmed)
+
+```
+break it up a bit
+```{r}
+# just find missing photos from the field
+
+field_photos_missing = missing_photo_blame_trimmed %>%
+  filter(photo_sampleClosed == "none; sieved in the field") %>%
+  arrange(Lroot_photo_by, rock_photo_by)
+
+field_photos_missing
+```
+
+```{r}
+# just find missing photos from the lab
+
+lab_photos_missing = missing_photo_blame_trimmed %>%
+  filter(photo_sampleClosed != "none; sieved in the field") %>%
+  arrange(rock_photo_by, Lroot_photo_by, sampleClosed_photo_by, sampleOpen_photo_by)
+
+
+rock_lpm = lab_photos_missing %>%
+  filter(photo_ROCK == "not_accounted_for") %>%
+  arrange(rock_photo_by, Lroot_photo_by, sampleClosed_photo_by, sampleOpen_photo_by)
+
+Lroot_lpm = lab_photos_missing %>%
+  filter(photo_Lroot == "not_accounted_for")
+
+sc_lpm = lab_photos_missing %>%
+  filter(photo_sampleClosed == "not_accounted_for")
+
+
+so_lpm = lab_photos_missing %>%
+  filter(photo_sampleOpen == "not_accounted_for")
+
+lab_photos_missing
+rock_lpm
+Lroot_lpm
+sc_lpm
+so_lpm
+
+View(lab_photos_missing)
+```
+
+
+Table this task for sam
+```{r}
+write_csv(field_photos_missing, "Results/field_photos_missing")
+```
+
+```{r}
+# make a list of the Sample_IDs for each type of photo/responsible taker
+
+photoTypes = c("Lroot", "rock", "sampleOpen", "sampleClosed")
+for (var in photoTypes) {
+  
+}
+```
+
+
+```{r}
+missing_photos_long = missing_photo_blame_trimmed  %>%
+  select(!c(notes_during_collection_annotations, notes_during_collection_narritive, notes_during_transcription_AG, notes_during_transcription_EF, Notes_during_transcription, Notes_during_collection)) %>%
+  pivot_longer(cols = !c(Sample_ID, Lroot_photo_by, rock_photo_by, sampleOpen_photo_by, sampleClosed_photo_by)) %>% 
+  filter(value == "not_accounted_for") %>%
+  mutate(photo_by = case_when(
+    name == "photo_Lroot" ~ Lroot_photo_by,
+    name == "photo_ROCK" ~ rock_photo_by,
+    name == "photo_sampleClosed" ~ sampleClosed_photo_by, 
+    name == "photo_sampleOpen" ~ sampleOpen_photo_by)
+  ) %>%
+  select(!c(Lroot_photo_by, rock_photo_by, sampleOpen_photo_by, sampleClosed_photo_by))
+
+missing_photos_long
+```
+
+
 investigate inconsistencies in above result 
 
 initials recorded in both data sheets -- only relevant during 202060722 AM! I found the errors and corrected them

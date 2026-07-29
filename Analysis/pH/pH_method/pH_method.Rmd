@@ -1,0 +1,78 @@
+---
+title: "pH_method"
+output: html_document
+---
+
+```{r}
+library(googledrive)
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+dg_output = drive_get("Lila_Sarif_shaking_experiment", shared_drive = 'Bogar Lab')
+
+drive_download(dg_output, type = "csv", path = "Inputs/Lila_Sarif_shaking_experiment_downloaded-20260728.csv", overwrite = TRUE)
+```
+```{r}
+shaking_experiment_data = read.csv("Inputs/Lila_Sarif_shaking_experiment_downloaded-20260728.csv")
+```
+
+```{r}
+shaking_experiment_data
+```
+
+```{r}
+per_tube = shaking_experiment_data %>%
+  unite("tube", c(Sample_ID, shake_time_min), sep = "_", remove = FALSE)
+
+per_tube
+  
+```
+
+
+```{r}
+ggplot(per_tube, aes(x = tube, y = pH, color = trial_type, shape = repeated_measurement)) +
+  geom_point()
+```
+```{r}
+
+w_diff = per_tube %>%
+  pivot_wider(
+    names_from = repeated_measurement, # Column providing 'A' and 'B'
+    values_from = !c(tube, Sample_ID, shake_time_min, trial_type)            # all but these, which are constant for a given tube
+  ) %>%
+  mutate(diff = abs(pH_A - pH_B))
+
+w_diff
+
+```
+```{r}
+ggplot(w_diff, aes(x = trial_type, y = diff)) + geom_boxplot()
+```
+```{r}
+
+
+ggplot((per_tube %>% filter(trial_type != "as_planned")), aes(x = shake_time_min, y = pH, color = trial_type, shape = Sample_ID)) + 
+  geom_point() 
+
+```
+
+```{r}
+ggplot(per_tube, aes(x = shake_time_min, y = pH, color = trial_type, shape = Sample_ID)) + 
+  geom_point() 
+
+```
+
+
+
+```{r}
+decant_only = shaking_experiment_data %>%
+  filter(trial_type == "decant")
+
+decant_only
+
+ggplot(decant_only, aes(x = repeated_measurement, y = temp_C_measured, color = pH, shape = Sample_ID)) +
+  geom_point() + geom_jitter(width = 0.01, height = 0.01)
+```
+
