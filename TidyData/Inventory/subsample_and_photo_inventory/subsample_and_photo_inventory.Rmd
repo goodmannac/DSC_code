@@ -23,11 +23,13 @@ Glades_sID_list = drive_get("what samples exist and what are they called", share
 Glades_sID_list # check to make sure we found the right file
 ```
 ```{r}
-drive_download(Glades_sID_list, type = "csv", path = "Inputs/what samples exist and what are they called_downloaded-20260721.csv")
+local_path <- paste0("Inputs/what samples exist and what are they called_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv") #define what this local file name will be, with today's date
+
+drive_download(Glades_sID_list, type = "csv", path = local_path, overwrite = TRUE) # overwrite = TRUE means that if you download this file twice on the same day, the first version will be overwritten by the second. If you download this file again on a different day (by running this whole code chunk), it will not be overwritten, because the date will have been updated and the local path will be different
 ```
 
 ```{r}
-sID_list_source = read.csv("Inputs/what samples exist and what are they called_downloaded-20260721.csv")
+sID_list_source = read.csv("Inputs/what samples exist and what are they called_downloaded-20260729.csv")
 head(sID_list_source)
 
 sID_list = sID_list_source$Sample_ID
@@ -175,8 +177,12 @@ Y_data_path
 ```
 download the transcribed data from google drive -- and save the path dribbles, for resolving future mix-ups?
 ```{r}
-drive_download(X_data_path, type = "csv", path = "Inputs/X_sample_data_transcribed_downloaded-20260723-3PM.csv")
-drive_download(Y_data_path, type = "csv", path = "Inputs/YZ_sample_data_transcribed_downloaded-20260723-3PM.csv")
+local_path_x <- paste0("Inputs/X_sample_data_transcribed_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv")
+local_path_y <- paste0("Inputs/YZ_sample_data_transcribed_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv")
+
+
+drive_download(X_data_path, type = "csv", path = local_path_x, overwrite = TRUE)
+drive_download(Y_data_path, type = "csv", path = local_path_y, overwrite = TRUE)
 
 # decided not to be saving dribbles as below
 ### write_csv(X_data_path, "Inputs/DRIBBLE_X_sample_data_transcribed_downloaded-20260722PM.csv") # should we be saving this metadata, in case file names get changed in google drive?
@@ -186,8 +192,8 @@ drive_download(Y_data_path, type = "csv", path = "Inputs/YZ_sample_data_transcri
 
 read the transcribed data into the R enviornment
 ```{r}
-x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260723-3PM.csv", col_names = FALSE)
-y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260723-3PM.csv", col_names = FALSE)
+x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260729.csv", col_names = FALSE)
+y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260729.csv", col_names = FALSE)
 
 #Rename the columns with their Sample_IDs
 
@@ -364,14 +370,12 @@ missing_photo_blame_trimmed = missing_photo_blame_trimmed %>%
     filter(Sample_ID != "DSC_048") %>%
 
           # ok actually we're taking out all ther litter only samples right now for simplicity
-    filter(GDB_inventory_notes != "litter only") %>%
+    filter(GDB_inventory_notes != "litter only")
   
           # DSC_016: photos are representing both A and B. 
     
 
-head(missing_photo_blame_trimmed)
-length(missing_photo_blame_trimmed$Sample_ID)
-View(missing_photo_blame_trimmed)
+missing_photo_blame_trimmed
 
 ```
 break it up a bit
@@ -413,23 +417,9 @@ Lroot_lpm
 sc_lpm
 so_lpm
 
-View(lab_photos_missing)
+lab_photos_missing
 ```
 
-
-Table this task for sam
-```{r}
-write_csv(field_photos_missing, "Results/field_photos_missing")
-```
-
-```{r}
-# make a list of the Sample_IDs for each type of photo/responsible taker
-
-photoTypes = c("Lroot", "rock", "sampleOpen", "sampleClosed")
-for (var in photoTypes) {
-  
-}
-```
 
 
 ```{r}
@@ -487,9 +477,15 @@ indicies2 = which(y_data_wide[["Sample_ID"]] %in% sIDs_missing_initials)
 
 YZ_missing_initials = y_data_wide[indicies2, ]
 
-View(YZ_missing_initials)
+YZ_missing_initials
 ```
 
 
 
+```{r}
+photos_to_request = missing_photos_long %>% arrange(photo_by)
+photos_to_request
+View(photos_to_request)
+write_csv(photos_to_request, "Results/photos_to_request.csv")
+```
 
