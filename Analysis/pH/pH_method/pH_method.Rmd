@@ -1,6 +1,9 @@
 ---
 title: "pH_method"
-output: html_document
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r}
@@ -12,7 +15,9 @@ library(ggplot2)
 ```{r}
 dg_output = drive_get("Lila_Sarif_shaking_experiment", shared_drive = 'Bogar Lab')
 
-drive_download(dg_output, type = "csv", path = "Inputs/Lila_Sarif_shaking_experiment_downloaded-20260728.csv", overwrite = TRUE)
+local_path <- paste0("Inputs/Lila_Sarif_shaking_experiment_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv") #define what this local file name will be, with today's date
+
+drive_download(dg_output, type = "csv", path = local_path, overwrite = TRUE)
 ```
 ```{r}
 shaking_experiment_data = read.csv("Inputs/Lila_Sarif_shaking_experiment_downloaded-20260728.csv")
@@ -56,7 +61,7 @@ How did measurements, and differences between repeat measurements, change over s
 ```{r}
 # with only the method that was consistent across all time points ("decant" is the method that measured temperature), compare pH of soil from same original samples over time
 
-ggplot((per_tube %>% filter(trial_type != "as_planned")), aes(x = shake_time_min, y = pH, color = Sample_ID, shape = repeated_measurement)) + 
+ggplot((per_tube %>% filter(trial_type != "as_planned")), aes(x = shake_time_min, y = pH, color = Sample_ID, shape = repeated_measurement, size = 2)) + 
   geom_point() 
 
 ```
@@ -82,5 +87,115 @@ decant_only
 
 ggplot(decant_only, aes(x = repeated_measurement, y = temp_C_measured, color = pH, shape = Sample_ID)) +
   geom_point() + geom_jitter(width = 0.01, height = 0.01)
+```
+
+```{r}
+dg_output = drive_get("Lila_shaking_experiment_transcribed_20260729", shared_drive = 'Bogar Lab')
+
+local_path <- paste0("Lila_shaking_experiment_20260729_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv") #define what this local file name will be, with today's date
+
+drive_download(dg_output, type = "csv", path = local_path, overwrite = TRUE)
+```
+```{r}
+shaking_experiment_2_data = read.csv(local_path)
+```
+
+```{r}
+per_tube_2 = shaking_experiment_2_data %>%
+  unite("tube", c(Sample_ID, shake_time_min), sep = "_", remove = FALSE)
+
+per_tube_2
+  
+```
+
+How different were the repeat measurments of each prepared tube with a given method ("trial_type")?
+```{r}
+ggplot(per_tube, aes(x = tube, y = pH, color = Sample_ID, shape = repeated_measurement)) +
+  geom_point()
+```
+
+
+How did measurements, and differences between repeat measurements, change over shaking time?
+```{r}
+# with only the method that was consistent across all time points ("decant" is the method that measured temperature), compare pH of soil from same original samples over time
+
+ggplot((per_tube_2), aes(x = shake_time_min, y = pH, color = Sample_ID, shape = repeated_measurement, size = 1.5)) + 
+  geom_point() 
+
+```
+
+```{r}
+
+w_diff_2 = per_tube_2 %>%
+  pivot_wider(
+    names_from = repeated_measurement, # Column providing 'A' and 'B'
+    values_from = !c(tube, Sample_ID, shake_time_min)            # all but these, which are constant for a given tube
+  ) %>%
+  mutate(diff = abs(pH_A - pH_B))
+
+w_diff_2
+
+```
+
+```{r}
+ggplot(w_diff_2, aes(x = shake_time_min, y = diff, fill = Sample_ID)) +
+  geom_bar(stat = "identity", 
+           position = position_dodge())
+```
+
+Measurements from yesterday and today together:
+```{r}
+w_diff_1 = w_diff %>%
+  filter(trial_type != "as_planned") %>%
+  select(!trial_type) %>%
+  mutate(experiment_day = "tues")
+
+per_tube_1 = per_tube %>%
+  filter(trial_type != "as_planned") %>%
+  select(!trial_type) %>%
+  mutate(experiment_day = "tues")
+
+w_diff_2 = w_diff_2 %>%
+  mutate(experiment_day = "weds")
+
+per_tube_2 = per_tube_2 %>%
+  mutate(experiment_day = "weds")
+
+bothdays_w_diff = rbind(w_diff_1, w_diff_2)
+
+bothdays_per_tube = rbind(per_tube_1, per_tube_2)
+```
+
+
+How did measurements, and differences between repeat measurements, change over shaking time?
+```{r}
+# with only the method that was consistent across all time points ("decant" is the method that measured temperature), compare pH of soil from same original samples over time
+
+ggplot((bothdays_per_tube), aes(x = shake_time_min, y = pH, color = Sample_ID)) + 
+  geom_point(aes(shape = repeated_measurement))
+
+ggplot((bothdays_per_tube), aes(x = shake_time_min, y = pH, color = Sample_ID)) + 
+  geom_point(aes(shape = repeated_measurement)) +
+  geom_smooth(method = "loess")
+
+```
+
+```{r}
+ggplot(bothdays_w_diff, aes(x = shake_time_min, y = diff, fill = Sample_ID)) +
+  geom_bar(stat = "identity", 
+           position = position_dodge()) +
+  facet_wrap(vars(experiment_day))
+```
+
+```{r}
+low_diff_only = bothdays_per_tube %>%
+  filter(shake_time_min == 20 |
+           shake_time_min == 40 |
+           shake_time_min == 60 |
+           shake_time_min == 120)
+
+
+ggplot((low_diff_only), aes(x = shake_time_min, y = pH, color = Sample_ID)) + 
+  geom_point(aes(shape = repeated_measurement))
 ```
 

@@ -192,8 +192,8 @@ drive_download(Y_data_path, type = "csv", path = local_path_y, overwrite = TRUE)
 
 read the transcribed data into the R enviornment
 ```{r}
-x_data = read_csv("Inputs/X_sample_data_transcribed_downloaded-20260729.csv", col_names = FALSE)
-y_data = read_csv("Inputs/YZ_sample_data_transcribed_downloaded-20260729.csv", col_names = FALSE)
+x_data = read_csv(local_path_x, col_names = FALSE)
+y_data = read_csv(local_path_y, col_names = FALSE)
 
 #Rename the columns with their Sample_IDs
 

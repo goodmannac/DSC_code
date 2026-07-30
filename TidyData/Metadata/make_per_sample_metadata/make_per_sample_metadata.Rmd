@@ -2,4 +2,215 @@
 title: "make_per_sample_metadata"
 output: html_document
 ---
+```{r}
+library(googledrive)
+library(tidyverse)
+```
+
+
+# Get the transcribed sample data (documents from initial 4mm sieving of each sample, in the lab or field) from google drive 
+
+
+```{r locate on google drive}
+# dribble searching for transcribed sample data for x samples
+X_data_path = drive_reveal(
+  drive_get("X_sample_data_transcribed", shared_drive = 'Bogar Lab'), 
+  "path")
+
+# dribble searching for transcribed sample data for y samples
+Y_data_path = drive_reveal(
+  drive_get("YZ_sample_data_transcribed", shared_drive = 'Bogar Lab'), 
+  "path")
+
+# check that each of these has the one, correct file in it 
+X_data_path
+Y_data_path
+#ok nice
+```
+
+```{r download}
+local_path_x <- paste0("Inputs/X_sample_data_transcribed_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv")
+local_path_y <- paste0("Inputs/YZ_sample_data_transcribed_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv")
+
+
+drive_download(X_data_path, type = "csv", path = local_path_x, overwrite = TRUE)
+drive_download(Y_data_path, type = "csv", path = local_path_y, overwrite = TRUE)
+```
+
+read the transcribed data into the R enviornment
+```{r import}
+x_data = read_csv(local_path_x, col_names = FALSE)
+y_data = read_csv(local_path_y, col_names = FALSE)
+```
+
+```{r tidy}
+#Rename the columns with their Sample_IDs:
+
+# x samples
+sampleIDrow = which(x_data[[1]] == "Sample_ID") # find which row # contains all the Sample_IDs
+colnames(x_data) = as.character(x_data[sampleIDrow,]) # make Sample_IDs the column names
+x_data = x_data %>%
+  rename(futureColumn = Sample_ID) %>% # rename the first column, which actually contains all the future column names (variable names? measurement names?)
+  slice(-sampleIDrow) # important to take the sample_ID row out so pivoting doesn't get confused later
+head(x_data)
+
+# y and z samples
+sampleIDrow = which(y_data[[1]] == "Sample_ID")
+colnames(y_data) = as.character(y_data[sampleIDrow,])
+y_data = y_data %>%
+  rename(futureColumn = Sample_ID) %>%
+  slice(-sampleIDrow)
+
+head(y_data)
+```
+
+Pivot to get sample_ID as its own column and all the measurements in rows
+```{r}
+x_data_pivoted = x_data %>%
+  pivot_longer(cols = !futureColumn, 
+               names_to = "Sample_ID", 
+               values_to = "value"
+               ) %>% # pivot longer first, making a column called Sample_ID
+  pivot_wider(names_from = futureColumn, 
+              values_from = value) # then wider, making each variable its own column
+
+head(x_data_pivoted)
+
+y_data_pivoted = y_data %>%
+  pivot_longer(cols = !futureColumn, 
+               names_to = "Sample_ID", 
+               values_to = "value"
+               ) %>% # pivot longer first, making a column called Sample_ID
+  pivot_wider(names_from = futureColumn, 
+              values_from = value) # then wider, making each variable its own column
+
+head(y_data_pivoted)
+```
+Check which column names are compatible
+```{r}
+# which column names in the x sample data sheet weren't in the yz sample data sheet?
+colnames(x_data_pivoted)[which(!(colnames(x_data_pivoted) %in% colnames(y_data_pivoted)))]
+
+print("-----------------------------------------------
+      ------------------------------------------------")
+
+# which column names in the yz sample data sheet weren't in the x sample data sheet?
+colnames(y_data_pivoted)[which(!(colnames(y_data_pivoted) %in% colnames(x_data_pivoted)))]
+
+```
+
+```{r resolve xyz colnames}
+#Sampling_date and sieve_date -- for x samples, sampling date is Sieve_date. For yz samples, Sampling_date is not recorded in this sheet
+x_data_colnamefix = x_data_pivoted %>% 
+  mutate(sieve_date = Sampling_date)
+
+y_data_colnamefix = y_data_pivoted %>% 
+  mutate(Sampling_date = "fill_in_from_core_data_later")
+
+# Site is also not currently recorded in this sheet for yz samples
+y_data_colnamefix = y_data_colnamefix %>% 
+  mutate(Site = "fill_in_from_core_data_later")
+
+#Equip_mgr_initials not relevant for yz samples
+y_data_colnamefix = y_data_colnamefix %>% 
+  mutate(Equip_mgr_initials = "NA_to_YZ_samples")
+
+#Lroot and rock masses have _g suffix on yz only
+x_data_colnamefix = x_data_colnamefix %>% 
+  rename(Lroot_empty_mass_g = Lroot_empty_mass) %>%
+  rename(rock_empty_mass_g = rock_empty_mass)
+
+#Lroot and rock pictures by same person always for x samples, sometimes different person for yz samples
+x_data_colnamefix = x_data_colnamefix %>% 
+  mutate(Lroot_photo_by = Lroot_and_rock_photos_by) %>%
+  mutate(rock_photo_by = Lroot_and_rock_photos_by) %>%
+  select(!Lroot_and_rock_photos_by)
+
+#Core_ID missing from yz samples; we need core data to add this 
+y_data_colnamefix = y_data_colnamefix %>% 
+  mutate(Core_ID = "fill_in_from_core_data_later")
+
+# fraction column has longer name, in yz sample data, won't always be present
+y_data_colnamefix = y_data_colnamefix %>% 
+  rename(fraction = `fraction (if written on sample tube)`) %>%
+  mutate(fraction = case_when(
+    fraction != NA ~ fraction,
+    fraction == NA ~ "fill_in_from_core_data_later"
+    )
+  )
+
+#ROOTS_W_and_ H_freeze_time (x) vs all_ROOTS_freeze_time (yz); W and H were the only kinds of roots we froze for x samples, so these can be the same column
+x_data_colnamefix = x_data_colnamefix %>% 
+  rename(all_ROOTS_freeze_time = `ROOTS_W_and_ H_freeze_time`) 
+
+# "RNA_A_freeze_time"                  "RNA_B_and_C_freeze_time"             "S_FM_mass_g"  ; all of these simply were recorded for X samples and not for YZ samples
+y_data_colnamefix = y_data_colnamefix %>% 
+  mutate(RNA_A_freeze_time = "NA_to_YZ_samples") %>% 
+  mutate(RNA_B_and_C_freeze_time = "NA_to_YZ_samples") %>% 
+  mutate(S_FM_mass_g = "NA_to_YZ_samples")
+
+# notes columns are messy but I'm leaving them alone for now
+
+# "sieving_start_time"                     "sieving_end_time" are in YZ but not X data; for X data, the recorded subsampling_start_time was effectively the sieving start time. We didn't record a sieving end time, but everything_cool_time is certianly after the sieving ended. I'm not going to change these, because while they approximate each other they're not exactly the same and I don't know that we need to know sieving start and end time exactly. 
+x_data_colnamefix = x_data_colnamefix %>% 
+  mutate(sieving_start_time = "after_subsampling_start") %>% 
+  mutate(sieving_end_time = "before_everything_cool")
+
+# mass of soil for pH was approximated by volume in the field, not measured
+x_data_colnamefix = x_data_colnamefix %>% 
+  mutate(S_pH_mass_g = "volume_approximated_in_field")
+
+#"small_tin_mass_full_g"                  "large_tin_mass_full_g"                 "all_set_to_dry_time" Not recorded in the field on X data sheets; these samples were set out to air dry by Glade(?) after I left for SSC 205, so I need to track down these data elsewhere
+x_data_colnamefix = x_data_colnamefix %>% 
+  mutate(small_tin_mass_full_g = "recorded_elsewhere_June2026?") %>%
+  mutate(small_tin_mass_empty_g = "recorded_elsewhere_June2026?") %>%
+  mutate(large_tin_mass_full_g = "recorded_elsewhere_June2026?") %>%
+  mutate(all_set_to_dry_time = "NA_to_X_samples")
+
+# we weren't documenting animal burrows explicitly in the field
+x_data_colnamefix = x_data_colnamefix %>% 
+  mutate(`Animal_burrow_(Y/N)` = "not_recorded_for_X_samples")
+
+# pre and post trim photos only taken systematically for yz samples; best approximate for x samples would be core section photos. + other tube removal types of data we didn't record for x samples
+x_data_colnamefix = x_data_colnamefix %>% 
+  mutate(pre_trim_photo_by = "see_core_section_photos_from_field") %>%
+  mutate(post_trim_photo_by = "see_core_section_photos_from_field") %>%
+  mutate(removed_soil_mass_g = "not_recorded_for_X_samples") %>%
+  mutate(tube_length_cm = "not_recorded_for_X_samples") %>%
+  mutate(`other_info_on_sample_tube (if present)` = "not_recorded_for_X_samples")
+  
+
+# ok now I'm fixing the notes
+
+y_data_colnamefix = y_data_colnamefix %>% 
+  rename(notes_during_collection_narritive = Notes_during_collection) %>% 
+  rename(notes_during_transcription_EF = Notes_during_transcription) %>% 
+  mutate(notes_during_transcription_AG = "NA_to_YZ_samples") %>%
+  mutate(notes_during_collection_annotations = "included_in_narritive_for_YZ_samples")
+
+x_data_colnamefix = x_data_colnamefix %>% 
+  select(!page_on_pdf_scan)
+
+```
+
+```{r}
+# which column names in the x sample data sheet weren't in the yz sample data sheet?
+colnames(x_data_colnamefix)[which(!(colnames(x_data_colnamefix) %in% colnames(y_data_colnamefix)))]
+
+print("-----------------------------------------------
+      ------------------------------------------------")
+
+# which column names in the yz sample data sheet weren't in the x sample data sheet?
+colnames(y_data_colnamefix)[which(!(colnames(y_data_colnamefix) %in% colnames(x_data_colnamefix)))]
+
+#ok cool only the notes are different now
+
+
+```
+
+```{r join x and yz sample data}
+
+xyz_sample_data = rbind(x_data_colnamefix, y_data_colnamefix)
+xyz_sample_data
+```
 
