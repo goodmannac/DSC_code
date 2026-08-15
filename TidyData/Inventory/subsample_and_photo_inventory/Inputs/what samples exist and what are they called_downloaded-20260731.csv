@@ -1,0 +1,110 @@
+Sample_ID,Notes,air-dry,oven-dry,pH,respiration,make air-dry bag,measure moisture,measure pH,measure respiration
+DSC_001,march survey,yes,no,yes,no,done,0,1,0
+DSC_002,march survey,yes,no,yes,no,done,0,1,0
+DSC_003,march survey,yes,no,yes,no,done,0,1,0
+DSC_004,march survey,yes,no,yes,no,done,0,1,0
+DSC_005,march survey,yes,no,yes,no,done,0,1,0
+DSC_006,march survey,yes,no,yes,no,done,0,1,0
+DSC_007,march survey,yes,no,yes,no,done,0,1,0
+DSC_008,litter only,no,no,no,no,0,0,0,0
+DSC_009,,yes,yes,yes,yes,1,1,1,1
+DSC_010,,yes,yes,yes,yes,1,1,1,1
+DSC_011,litter only,no,no,no,no,0,0,0,0
+DSC_012,,yes,yes,yes,yes,1,1,1,1
+DSC_013,,yes,yes,yes,yes,1,1,1,1
+DSC_014,,yes,yes,yes,yes,1,1,1,1
+DSC_015,,yes,yes,yes,yes,1,1,1,1
+DSC_016A,separated by gopher,yes,yes,yes,yes,1,1,1,1
+DSC_016B,separated by gopher,yes,yes,yes,yes,1,1,1,1
+DSC_017,,yes,yes,yes,yes,1,1,1,1
+DSC_018,,yes,yes,yes,yes,1,1,1,1
+DSC_019,,yes,yes,yes,yes,1,1,1,1
+DSC_020,,yes,yes,yes,yes,1,1,1,1
+DSC_021,,yes,yes,yes,yes,1,1,1,1
+DSC_022,,yes,yes,yes,yes,1,1,1,1
+DSC_023,,yes,yes,yes,yes,1,1,1,1
+DSC_024,,yes,yes,yes,yes,1,1,1,1
+DSC_025,,yes,yes,yes,yes,1,1,1,1
+DSC_026,,yes,yes,yes,yes,1,1,1,1
+DSC_027,,yes,yes,yes,yes,1,1,1,1
+DSC_028,,yes,yes,yes,yes,1,1,1,1
+DSC_029,,yes,yes,yes,yes,1,1,1,1
+DSC_030,,yes,yes,yes,yes,1,1,1,1
+DSC_031,,yes,yes,yes,yes,1,1,1,1
+DSC_032,,yes,yes,yes,yes,1,1,1,1
+DSC_033,,yes,yes,yes,yes,1,1,1,1
+DSC_034,,yes,yes,yes,yes,1,1,1,1
+DSC_035,,yes,yes,yes,yes,1,1,1,1
+DSC_036,,yes,yes,yes,yes,1,1,1,1
+DSC_037,,yes,yes,yes,yes,1,1,1,1
+DSC_038,,yes,yes,yes,yes,1,1,1,1
+DSC_039,,yes,yes,yes,yes,1,1,1,1
+DSC_040,,yes,yes,yes,yes,1,1,1,1
+DSC_041,,yes,yes,yes,yes,1,1,1,1
+DSC_042,,yes,yes,yes,yes,1,1,1,1
+DSC_043,,yes,yes,yes,yes,1,1,1,1
+DSC_044,,yes,yes,yes,yes,1,1,1,1
+DSC_045,,yes,yes,yes,yes,1,1,1,1
+DSC_046,,yes,yes,yes,yes,1,1,1,1
+DSC_047,,yes,yes,yes,yes,1,1,1,1
+DSC_048,,yes,yes,yes,yes,1,1,1,1
+DSC_049,,yes,yes,yes,yes,1,1,1,1
+DSC_050,,yes,yes,yes,yes,1,1,1,1
+DSC_051,,yes,yes,yes,yes,1,1,1,1
+DSC_052,,yes,yes,yes,yes,1,1,1,1
+DSC_053,,yes,yes,yes,yes,1,1,1,1
+DSC_054,,yes,yes,yes,yes,1,1,1,1
+DSC_055,,yes,yes,yes,yes,1,1,1,1
+DSC_056,,yes,yes,yes,yes,1,1,1,1
+DSC_071,,yes,yes,yes,yes,1,1,1,1
+DSC_072,,yes,yes,yes,yes,1,1,1,1
+DSC_073,,yes,yes,yes,yes,1,1,1,1
+DSC_074,,yes,yes,yes,yes,1,1,1,1
+DSC_075,,yes,yes,yes,yes,1,1,1,1
+DSC_076,,yes,yes,yes,yes,1,1,1,1
+DSC_077,,yes,yes,yes,yes,1,1,1,1
+DSC_078,,yes,yes,yes,yes,1,1,1,1
+DSC_079,litter only,no,no,no,no,0,0,0,0
+DSC_080,,yes,yes,yes,yes,1,1,1,1
+DSC_081,,yes,yes,yes,yes,1,1,1,1
+DSC_082,,yes,yes,yes,yes,1,1,1,1
+DSC_084,,yes,yes,yes,yes,1,1,1,1
+DSC_085,,yes,yes,yes,yes,1,1,1,1
+DSC_086,,yes,yes,yes,yes,1,1,1,1
+DSC_087,litter only,no,no,no,no,0,0,0,0
+DSC_088,litter only,no,no,no,no,0,0,0,0
+DSC_089,,yes,yes,yes,yes,1,1,1,1
+DSC_090,,yes,yes,yes,yes,1,1,1,1
+DSC_091,,yes,yes,yes,yes,1,1,1,1
+DSC_092,,yes,yes,yes,yes,1,1,1,1
+DSC_093,,yes,yes,yes,yes,1,1,1,1
+DSC_094,,yes,yes,yes,yes,1,1,1,1
+DSC_095,,yes,yes,yes,yes,1,1,1,1
+DSC_096,,yes,yes,yes,yes,1,1,1,1
+DSC_097,,yes,yes,yes,yes,1,1,1,1
+DSC_098,,yes,yes,yes,yes,1,1,1,1
+DSC_099,,yes,yes,yes,yes,1,1,1,1
+DSC_100,,yes,yes,yes,yes,1,1,1,1
+DSC_101,,yes,yes,yes,yes,1,1,1,1
+DSC_102,,yes,yes,yes,yes,1,1,1,1
+DSC_103,,yes,yes,yes,yes,1,1,1,1
+DSC_104,litter only,no,no,no,no,0,0,0,0
+DSC_105,,yes,yes,yes,yes,1,1,1,1
+DSC_106,,yes,yes,yes,yes,1,1,1,1
+DSC_107,,yes,yes,yes,yes,1,1,1,1
+DSC_108,,yes,yes,yes,yes,1,1,1,1
+DSC_109,,yes,yes,yes,yes,1,1,1,1
+DSC_110,,yes,yes,yes,yes,1,1,1,1
+DSC_111,,yes,yes,yes,yes,1,1,1,1
+DSC_112,,yes,yes,yes,yes,1,1,1,1
+DSC_126,,yes,yes,yes,yes,1,1,1,1
+DSC_127,,yes,yes,yes,yes,1,1,1,1
+DSC_128,,yes,yes,yes,yes,1,1,1,1
+DSC_129,,yes,yes,yes,yes,1,1,1,1
+DSC_130,,yes,yes,yes,yes,1,1,1,1
+DSC_131,,yes,yes,yes,yes,1,1,1,1
+DSC_132,,yes,yes,yes,yes,1,1,1,1
+DSC_133,,yes,yes,yes,yes,1,1,1,1
+,,,,,,AIRDRY,OVENDRY,pH,RESPIRATION
+,,,,,,93,93,100,93
+,,,,,,,,,223.2

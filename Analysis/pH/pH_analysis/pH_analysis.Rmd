@@ -1,0 +1,91 @@
+---
+title: "pH_analysis"
+output: html_document
+---
+exploratory and messy; 14 Aug 2026 AG 
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+psm = read_csv("../../../TidyData/Metadata/make_per_sample_metadata/Results/DSC_per_sample_metadata_compiled-20260814.csv")
+```
+
+```{r}
+colnames(psm)
+```
+pivot so we can look at both measurements
+```{r}
+psm = psm %>%
+  pivot_longer(c(pH_1st_measurement, pH_2nd_measurement), names_to = "pH_measurement", values_to = "pH")
+```
+
+```{r}
+ggplot(psm, aes(x = sample_bottom_depth, y = pH, color = pH_measurement)) +
+  geom_point() 
+```
+
+
+```{r}
+ggplot(psm, aes(x = tnt, y = pH)) +
+
+  geom_boxplot(aes(x = tnt, y = pH)) +
+    geom_point(aes(color = Site, shape = pH_measurement))
+```
+
+
+```{r}
+
+boxplot = geom_boxplot( # add boxplot layer
+                        alpha = 0.3, #make fill mostly transparent
+                       color = "gray50", 
+                       linewidth = 0.25
+                       ) 
+#linecolor = scale_color_manual(name = "Tree mortality", values = c("mediumblue", "lightpink2"))
+
+points = geom_jitter( # add raw datapoint layer
+                      size = 0.5, 
+                     position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.75) # Dodge so living and dead points are separated and overlay their boxplots. Jitter optional.
+                     ) 
+
+fillcolor = scale_fill_manual(name = "Site", values = c("darkgreen", "orange", "grey")) # color the semi-transparent box fill, name legend
+
+dotlinecolor = scale_color_manual(name = "Site", values = c("darkgreen", "orange", "grey")) # color the points and lines, name legend consistently
+
+background = theme_minimal() # visually simplify background
+
+
+theme = theme(text = element_text(size = 7), # set font size
+              plot.margin = margin(t = 13, r = 5.5, b = 5.5, l = 5.5), # set margin widths: widen left margin of each plot so the panel labels can fit in top left. 5.5 is default pt size for margins in ggplot.
+              axis.title.x = element_blank(), # no x-axis, if doing shared x-axis later
+              legend.position = "bottom"
+)
+
+```
+
+```{r}
+pH = ggplot(psm, aes(microsite, pH, fill = Site, color = tnt)) +
+  geom_boxplot() +
+  points +
+  fillcolor +
+  background 
+
+pH
+```
+```{r}
+filter(psm, is.na(pH))
+```
+
+quick look at moisutre; move this once we have that analysis folder going. also some of these data are still wrong
+```{r}
+ggplot(psm, aes(x = sample_bottom_depth, y = FM_moisture_percent, color = Site)) +
+  geom_point() 
+
+filter(psm, FM_moisture_percent > 200) # weird one is from the sample that was all root
+
+ggplot(filter(psm, FM_moisture_percent < 200), aes(x = sample_bottom_depth, y = FM_moisture_percent, color = Site, shape = microsite)) +
+  geom_point() 
+```
+

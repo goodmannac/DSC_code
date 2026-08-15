@@ -143,12 +143,14 @@ photo_inventory = template %>%
   # log which sample IDs have a sample-closed photo
   mutate(photo_sampleClosed = case_when(
     str_detect(content, "sample-closed") == TRUE ~ "in_drive",
+    str_detect(content, "sampleclosed") == TRUE ~ "in_drive",
     .default = "not_accounted_for",
    )) %>%
   
   # log which sample IDs have a sample-open photo
   mutate(photo_sampleOpen = case_when(
     str_detect(content, "sample-open") == TRUE ~ "in_drive",
+    str_detect(content, "sampleopen") == TRUE ~ "in_drive",
     .default = "not_accounted_for",
    )) %>% 
   

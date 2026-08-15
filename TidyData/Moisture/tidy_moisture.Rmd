@@ -1,0 +1,98 @@
+---
+title: "tidy_moisture"
+output: html_document
+---
+
+NOT COMPLETE AS OF 14 AUG 2026. only oven-dry data tidied. air-dry data loaded, not tidied. no correction or notation for the handful of OD measurements which are unuseable; see anna's notes and the "qualcheck" tab of the google drive file "oven_dry_masses_JulyAug2026"
+
+```{r}
+library(googledrive)
+library(tidyverse)
+```
+
+```{r}
+
+name_of_transcription_file_on_drive = "oven_dry_masses_JulyAug2026" # copy the file's name exactly as it appears on google drive
+
+dribble = drive_get(name_of_transcription_file_on_drive, shared_drive = 'Bogar Lab') # get necesary data for downloading
+
+local_path <- paste0("Inputs/", 
+                     name_of_transcription_file_on_drive, 
+                     "_downloaded-", 
+                     format(Sys.Date(), "%Y%m%d"), 
+                     ".csv") #define what this local file name will be, with today's date
+
+drive_download(dribble, type = "csv", path = local_path, overwrite = TRUE)
+
+od_transcribed_data = read_csv(local_path)
+
+```
+# Oven dry moisture data
+General tidy 
+```{r}
+od_measures = od_transcribed_data %>%
+  
+  #exclude rows that don't contain oven-dry mass measurements
+  mutate (oven_dry_plus_tin_mass_g = as.numeric(oven_dry_plus_tin_mass_g)) %>%
+  filter(!is.na(oven_dry_plus_tin_mass_g)) %>%
+  
+  #rename the unamed notes column
+  rename(od_notes = X)
+
+```
+
+Calculate FM_moisture_percent and AD_Moisture_percent from oven dry sheet (small tins)
+```{r}
+od_moisture_tidy = od_measures %>%
+  mutate(
+         FM_mass_g = field_moist_plus_tin_mass_g - empty_tin_mass_g,
+         AD_mass_g = air_dry_plus_tin_mass_g - empty_tin_mass_g,
+         OD_mass_g = oven_dry_plus_tin_mass_g - empty_tin_mass_g,
+         
+         AD_Factor = AD_mass_g / FM_mass_g, 
+         
+         OD_Factor = OD_mass_g / FM_mass_g, 
+         
+         diff = AD_Factor - OD_Factor,
+         
+         FM_moisture_percent =
+             ((FM_mass_g - OD_mass_g) / (OD_mass_g)) * 100,
+         AD_moisture_percent = 
+           ((AD_mass_g - OD_mass_g) / (OD_mass_g)) * 100
+         )
+  
+```
+
+export
+```{r}
+
+local_path_tidydata <- paste0("Results/", 
+                     "od_moisture_tidied-", 
+                     format(Sys.Date(), "%Y%m%d"), 
+                     ".csv") #define what this local file name will be, with today's date
+
+write_csv(od_moisture_tidy, local_path_tidydata)
+```
+
+
+# Air dry moisture data
+```{r}
+
+name_of_transcription_file_on_drive = "weighing notes july 2,3,5 2026_transcribed20260806_AG" # copy the file's name exactly as it appears on google drive
+
+dribble = drive_get(name_of_transcription_file_on_drive, shared_drive = 'Bogar Lab') # get necesary data for downloading
+
+local_path <- paste0("Inputs/", 
+                     name_of_transcription_file_on_drive, 
+                     "_downloaded-", 
+                     format(Sys.Date(), "%Y%m%d"), 
+                     ".csv") #define what this local file name will be, with today's date
+
+drive_download(dribble, type = "csv", path = local_path, overwrite = TRUE)
+
+ad_transcribed_data = read_csv(local_path)
+
+```
+
+
+

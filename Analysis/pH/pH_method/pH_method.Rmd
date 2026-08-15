@@ -100,13 +100,8 @@ drive_download(dg_output, type = "csv", path = local_path, overwrite = TRUE)
 shaking_experiment_2_data = read.csv(local_path)
 ```
 
-```{r}
-per_tube_2 = shaking_experiment_2_data %>%
-  unite("tube", c(Sample_ID, shake_time_min), sep = "_", remove = FALSE)
 
-per_tube_2
-  
-```
+
 
 How different were the repeat measurments of each prepared tube with a given method ("trial_type")?
 ```{r}
@@ -198,4 +193,37 @@ low_diff_only = bothdays_per_tube %>%
 ggplot((low_diff_only), aes(x = shake_time_min, y = pH, color = Sample_ID)) + 
   geom_point(aes(shape = repeated_measurement))
 ```
+# 6 Aug 2026
 
+```{r}
+dg_output = drive_get("Lila and Sebastian_pH_20260804", shared_drive = 'Bogar Lab')
+
+local_path <- paste0("Inputs/Lila and Sebastian_pH_20260804_downloaded-", format(Sys.Date(), "%Y%m%d"), ".csv") #define what this local file name will be, with today's date
+
+drive_download(dg_output, type = "csv", path = local_path, overwrite = TRUE)
+```
+```{r}
+shaking_experiment_data = read.csv(local_path)
+```
+
+```{r}
+per_tube = shaking_experiment_data %>%
+  unite("tube", c(Sample_ID, Trial), sep = "_", remove = FALSE)
+
+per_tube
+  
+```
+
+```{r}
+ggplot(per_tube, aes(x = tube, y = pH)) +
+  geom_point()
+```
+
+```{r}
+ggplot(per_tube, aes(x = Sample_ID, y = pH)) +
+  geom_point()
+```
+```{r}
+ggplot(per_tube, aes(x = pH, y = Temp)) +
+  geom_point()
+```

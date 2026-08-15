@@ -1,0 +1,75 @@
+---
+title: "tidy_pH"
+output: html_document
+---
+
+```{r}
+library(googledrive)
+library(tidyverse)
+```
+
+```{r}
+
+name_of_transcription_file_on_drive = "DSC_pH_data_Lila_Aug2026" # copy the file's name exactly as it appears on google drive
+
+dribble = drive_get(name_of_transcription_file_on_drive, shared_drive = 'Bogar Lab') # get necesary data for downloading
+
+local_path <- paste0("Inputs/", 
+                     name_of_transcription_file_on_drive, 
+                     "_downloaded-", 
+                     format(Sys.Date(), "%Y%m%d"), 
+                     ".csv") #define what this local file name will be, with today's date
+
+drive_download(dribble, type = "csv", path = local_path, overwrite = TRUE)
+
+transcribed_data = read.csv(local_path)
+
+```
+Remove rows which do not contain measurements
+```{r}
+pH_measures = transcribed_data %>%
+  filter(endsWith(Date.Measured, "2026"))
+```
+
+Clean up column names/contents
+```{r}
+colnames(pH_measures)
+
+pH_cols_tidy = pH_measures %>%
+  rename(approx_soil_mass_g = Approximate.soil.mass..g., # most of these for legibility
+         CaCl2_mL = Actual.0.01.CaCl2.added..mL.,
+         pH_1st_measurement = pH...first,
+         pH_2nd_measurement = pH...second,
+         Sample_ID = SampleID) %>% # make consistent with other metadata
+  
+  select(!c(mass.soil.plus.tube..g., 
+            average.15.mL.tube.mass..g.,
+            Approximate.0.01M.CaCl2.to.add..mL.)) # these both just for measurement set-up, not relevant downstream
+
+colnames(pH_cols_tidy)
+
+```
+put the letters in 16A and 16B in caps
+```{r}
+pH_tidy = pH_cols_tidy %>%
+  mutate(Sample_ID = case_when(
+    Sample_ID == "DSC_016a" ~ "DSC_016A",
+    Sample_ID == "DSC_016b" ~ "DSC_016B",
+    .default = Sample_ID
+  ))
+```
+
+
+export
+```{r}
+
+local_path_tidydata <- paste0("Results/", 
+                     "pH_tidied-", 
+                     format(Sys.Date(), "%Y%m%d"), 
+                     ".csv") #define what this local file name will be, with today's date
+
+write_csv(pH_tidy, local_path_tidydata)
+```
+
+
+

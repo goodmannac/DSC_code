@@ -380,7 +380,6 @@ Glades_sID_list = drive_get(&quot;what samples exist and what are they called&qu
 <pre><code>##   See gargle&#39;s &quot;Non-interactive auth&quot; vignette for more details:</code></pre>
 <pre><code>##   &lt;https://gargle.r-lib.org/articles/non-interactive-auth.html&gt;</code></pre>
 <pre><code>## ℹ The googledrive package is using a cached token for &#39;agoodman@ucdavis.edu&#39;.</code></pre>
-<pre><code>## Auto-refreshing stale OAuth token.</code></pre>
 <pre><code>## ✔ The input `path` resolved to exactly 1 file.</code></pre>
 <pre class="r"><code>Glades_sID_list # check to make sure we found the right file</code></pre>
 <pre><code>## # A dribble: 1 × 4
@@ -394,7 +393,7 @@ drive_download(Glades_sID_list, type = &quot;csv&quot;, path = local_path, overw
 <pre><code>## • &#39;what samples exist and what are they called&#39;
 ##   &lt;id: 14NxIcEpybH71g_r-29jZtrWmcqq9t9BZzneKVSqu-CA&gt;</code></pre>
 <pre><code>## Saved locally as:</code></pre>
-<pre><code>## • &#39;Inputs/what samples exist and what are they called_downloaded-20260730.csv&#39;</code></pre>
+<pre><code>## • &#39;Inputs/what samples exist and what are they called_downloaded-20260731.csv&#39;</code></pre>
 <pre class="r"><code>sID_list_source = read.csv(&quot;Inputs/what samples exist and what are they called_downloaded-20260729.csv&quot;)
 head(sID_list_source)</code></pre>
 <pre><code>##   Sample_ID        Notes air.dry oven.dry  pH respiration make.air.dry.bag
@@ -466,6 +465,22 @@ photo_subfolder_IDs = append(photo_subfolders_lab$id, photo_subfolders_field$id)
 
 photo_subfolder_contents # ok this is a list of dribbles which each contains a list of filenames</code></pre>
 <pre><code>## [[1]]
+## # A dribble: 112 × 3
+##    name                            id       drive_resource   
+##    &lt;chr&gt;                           &lt;drv_id&gt; &lt;list&gt;           
+##  1 DSC_032_sampleclosed.jpeg       1TuzRtJ… &lt;named list [45]&gt;
+##  2 DSC_028_sampleclosed.jpeg       1zh2u36… &lt;named list [45]&gt;
+##  3 DSC_016_A-B-split               1D5g28z… &lt;named list [45]&gt;
+##  4 DSC_016_sample-open2            1BZ99uj… &lt;named list [45]&gt;
+##  5 DSC_016_sample-open             1pvlQp2… &lt;named list [45]&gt;
+##  6 DSC_016_sample-closed-bottomEnd 12QtWvI… &lt;named list [45]&gt;
+##  7 DSC_016_sample-closed           1AVAiW4… &lt;named list [45]&gt;
+##  8 DSC_016_sample-closed-topEnd    10OL-YG… &lt;named list [45]&gt;
+##  9 O-Horizons_and_Shoes            155qga0… &lt;named list [34]&gt;
+## 10 DSC_016_ sample-open.HEIC       1MadRME… &lt;named list [44]&gt;
+## # ℹ 102 more rows
+## 
+## [[2]]
 ## # A dribble: 6 × 3
 ##   name                       id                                drive_resource   
 ##   &lt;chr&gt;                      &lt;drv_id&gt;                          &lt;list&gt;           
@@ -476,7 +491,7 @@ photo_subfolder_contents # ok this is a list of dribbles which each contains a l
 ## 5 Norbaya_Shoes.jpg          1Lzh0Ha2fIsZOX1Je2r2bG3IuaHY0cONc &lt;named list [43]&gt;
 ## 6 DSC_133_trim_procedure.mp4 1iHe_5kIUyHVsRha-rCWlwsSTWBzkR3sA &lt;named list [43]&gt;
 ## 
-## [[2]]
+## [[3]]
 ## # A dribble: 68 × 3
 ##    name                     id                                drive_resource   
 ##    &lt;chr&gt;                    &lt;drv_id&gt;                          &lt;list&gt;           
@@ -491,22 +506,6 @@ photo_subfolder_contents # ok this is a list of dribbles which each contains a l
 ##  9 DSC_130_rock.jpg         1TWO5DoY3teu_-qvaRoYL1yVIwbwu9a59 &lt;named list [44]&gt;
 ## 10 DSC_075_L-ROOT_ROCK.jpeg 1EeaQ5JeCKtodKN2EMANNrONnLWR-MF3h &lt;named list [44]&gt;
 ## # ℹ 58 more rows
-## 
-## [[3]]
-## # A dribble: 110 × 3
-##    name                            id       drive_resource   
-##    &lt;chr&gt;                           &lt;drv_id&gt; &lt;list&gt;           
-##  1 DSC_016_A-B-split               1D5g28z… &lt;named list [45]&gt;
-##  2 DSC_016_sample-open2            1BZ99uj… &lt;named list [45]&gt;
-##  3 DSC_016_sample-open             1pvlQp2… &lt;named list [45]&gt;
-##  4 DSC_016_sample-closed-bottomEnd 12QtWvI… &lt;named list [45]&gt;
-##  5 DSC_016_sample-closed           1AVAiW4… &lt;named list [45]&gt;
-##  6 DSC_016_sample-closed-topEnd    10OL-YG… &lt;named list [45]&gt;
-##  7 O-Horizons_and_Shoes            155qga0… &lt;named list [34]&gt;
-##  8 DSC_016_ sample-open.HEIC       1MadRME… &lt;named list [44]&gt;
-##  9 DSC_026_sample-closed.HEIC      1yxUETS… &lt;named list [44]&gt;
-## 10 DSC_129_ sample-closed.HEIC     1njcayI… &lt;named list [44]&gt;
-## # ℹ 100 more rows
 ## 
 ## [[4]]
 ## # A dribble: 28 × 3
@@ -554,253 +553,255 @@ for (var in photo_subfolder_contents) {
 } 
 
 photo_filenames # ok yay we have a vector of all the photo filenames!</code></pre>
-<pre><code>##   [1] &quot;DSC_078_SHOE_node&quot;                    
-##   [2] &quot;DSC_016_dead&quot;                         
-##   [3] &quot;DSC_DEAD-ROOT_Example.HEIC&quot;           
-##   [4] &quot;DSC_DEAD-ROOT_Example.HEIC&quot;           
-##   [5] &quot;Norbaya_Shoes.jpg&quot;                    
-##   [6] &quot;DSC_133_trim_procedure.mp4&quot;           
-##   [7] &quot;DSC_078_SHOE_rock&quot;                    
-##   [8] &quot;DSC_020_SHOE_rock&quot;                    
-##   [9] &quot;DSC_028_SHOE_rock&quot;                    
-##  [10] &quot;DSC_033_SHOE_rock&quot;                    
-##  [11] &quot;DSC_086_L-ROOT_ROCK&quot;                  
-##  [12] &quot;DSC_016_L-ROOT_ROCK.HEIC&quot;             
-##  [13] &quot;DSC_033_ROCK.HEIC&quot;                    
-##  [14] &quot;IMG_1184.HEIC&quot;                        
-##  [15] &quot;DSC_130_rock.jpg&quot;                     
-##  [16] &quot;DSC_075_L-ROOT_ROCK.jpeg&quot;             
-##  [17] &quot;DSC_127_L-ROOT_ROCK.jpeg&quot;             
-##  [18] &quot;DSC_076_L-ROOT_ROCK.HEIC&quot;             
-##  [19] &quot;DSC_017_L-ROOT_ROCK.jpeg&quot;             
-##  [20] &quot;DSC_021_L-ROOT_ROCK.HEIC&quot;             
-##  [21] &quot;DSC_019_rock.jpg&quot;                     
-##  [22] &quot;DSC_019_lroot.jpg&quot;                    
-##  [23] &quot;DSC_010_Lroot.jpg&quot;                    
-##  [24] &quot;DSC_017_ROCK.HEIC&quot;                    
-##  [25] &quot;DSC_017_L-ROOT.HEIC&quot;                  
-##  [26] &quot;DSC_029_ROCK.HEIC&quot;                    
-##  [27] &quot;DSC_029_L-ROOT.HEIC&quot;                  
-##  [28] &quot;DSC_077_ROCK.HEIC&quot;                    
-##  [29] &quot;DSC_077_L-ROOT.HEIC&quot;                  
-##  [30] &quot;DSC_055-rock.HEIC&quot;                    
-##  [31] &quot;DSC_128_ROCK.HEIC&quot;                    
-##  [32] &quot;DSC_033_ROCK.HEIC&quot;                    
-##  [33] &quot;DSC_037_ROCK.HEIC&quot;                    
-##  [34] &quot;DSC_037_L-ROOT.HEIC&quot;                  
-##  [35] &quot;DSC_129_ROCK.HEIC&quot;                    
-##  [36] &quot;DSC_026_L-ROCK.HEIC&quot;                  
-##  [37] &quot;DSC_082_rock.jpg&quot;                     
-##  [38] &quot;DSC_130_lroot.jpg&quot;                    
-##  [39] &quot;DSC_030_lroot.jpg&quot;                    
-##  [40] &quot;DSC_030_rock.jpg&quot;                     
-##  [41] &quot;DSC_041_rock.jpg&quot;                     
-##  [42] &quot;DSC_022_rock.jpg&quot;                     
-##  [43] &quot;DSC_010_rock.jpg&quot;                     
-##  [44] &quot;DSC_040_rock_3.jpg&quot;                   
-##  [45] &quot;DSC_040_rock_2.jpg&quot;                   
-##  [46] &quot;DSC_040_rock.jpg&quot;                     
-##  [47] &quot;DSC_026_rock.jpg&quot;                     
-##  [48] &quot;DSC_056_rock.jpg&quot;                     
-##  [49] &quot;DSC_056_lroot.jpg&quot;                    
-##  [50] &quot;DSC_133_lroot.jpg&quot;                    
-##  [51] &quot;DSC_133_rock.jpg&quot;                     
-##  [52] &quot;DSC_126_lroot.jpg&quot;                    
-##  [53] &quot;DSC_126_rock.jpg&quot;                     
-##  [54] &quot;DSC_050_lroot.jpg&quot;                    
-##  [55] &quot;DSC_050_rock.jpg&quot;                     
-##  [56] &quot;DSC_020_lroot.jpg&quot;                    
-##  [57] &quot;DSC_020_rock.jpg&quot;                     
-##  [58] &quot;DSC_051_rock.jpg&quot;                     
-##  [59] &quot;DSC_085_rock.jpg&quot;                     
-##  [60] &quot;DSC_093_L-ROOT_ROCK.jpeg&quot;             
-##  [61] &quot;DSC_100_L-ROOT_ROCK.jpeg&quot;             
-##  [62] &quot;DSC_043_L-ROOT_ROCK.jpeg&quot;             
-##  [63] &quot;DSC_032_L-ROOT_ROCK.jpeg&quot;             
-##  [64] &quot;DSC_027_L-ROOT_ROCK.HEIC&quot;             
-##  [65] &quot;DSC_132_L-ROOT_ROCK.HEIC&quot;             
-##  [66] &quot;DSC_034_L-ROOT_ROCK.HEIC&quot;             
-##  [67] &quot;DSC_078_L-ROOT_ROCK.HEIC&quot;             
-##  [68] &quot;DSC_098_L-ROOT_ROCK.HEIC&quot;             
-##  [69] &quot;DSC_042_L-ROOT_ROCK.HEIC&quot;             
-##  [70] &quot;DSC_074_L-ROOT_ROCK.HEIC&quot;             
-##  [71] &quot;DSC_049_L-ROCK.HEIC&quot;                  
-##  [72] &quot;DSC_131_L-ROOT_ROCK.HEIC&quot;             
-##  [73] &quot;DSC_025_L-ROOT_ROCK.HEIC&quot;             
-##  [74] &quot;DSC_015_L-ROOT_ROCK.HEIC&quot;             
-##  [75] &quot;DSC_016_A-B-split&quot;                    
-##  [76] &quot;DSC_016_sample-open2&quot;                 
-##  [77] &quot;DSC_016_sample-open&quot;                  
-##  [78] &quot;DSC_016_sample-closed-bottomEnd&quot;      
-##  [79] &quot;DSC_016_sample-closed&quot;                
-##  [80] &quot;DSC_016_sample-closed-topEnd&quot;         
-##  [81] &quot;O-Horizons_and_Shoes&quot;                 
-##  [82] &quot;DSC_016_ sample-open.HEIC&quot;            
-##  [83] &quot;DSC_026_sample-closed.HEIC&quot;           
-##  [84] &quot;DSC_129_ sample-closed.HEIC&quot;          
-##  [85] &quot;DSC_129_ sample-open.HEIC&quot;            
-##  [86] &quot;DSC_037_ sample-closed.HEIC&quot;          
-##  [87] &quot;DSC_037_ sample-open.HEIC&quot;            
-##  [88] &quot;DSC_075_ sample-open.jpeg&quot;            
-##  [89] &quot;DSC_075_ sample-closed.jpeg&quot;          
-##  [90] &quot;DSC_075?_ sample-open.jpeg&quot;           
-##  [91] &quot;DSC_039_sample-closed.HEIC&quot;           
-##  [92] &quot;DSC_127_ sample-open.jpeg&quot;            
-##  [93] &quot;DSC_039_sample-open.HEIC&quot;             
-##  [94] &quot;DSC_100_sample-open.HEIC&quot;             
-##  [95] &quot;DSC_132_ sample-closed.HEIC&quot;          
-##  [96] &quot;DSC_132_ sample-open.HEIC&quot;            
-##  [97] &quot;DSC_131_ sample-closed.HEIC&quot;          
-##  [98] &quot;DSC_131_ sample-open.HEIC&quot;            
-##  [99] &quot;DSC_128_ sample-closed.HEIC&quot;          
-## [100] &quot;DSC_128_ sample-open.HEIC&quot;            
-## [101] &quot;DSC_127_ sample-closed.jpeg&quot;          
-## [102] &quot;DSC_101_ sample-closed.HEIC&quot;          
-## [103] &quot;DSC_100_ sample-closed.HEIC&quot;          
-## [104] &quot;DSC_099_ sample-open.jpeg&quot;            
-## [105] &quot;DSC_098_ sample-closed.HEIC&quot;          
-## [106] &quot;DSC_086_ sample-closed.jpeg&quot;          
-## [107] &quot;DSC_086_ sample-open.HEIC&quot;            
-## [108] &quot;DSC_086_ sample-horizon?.jpeg&quot;        
-## [109] &quot;DSC_078_ sample-closed.HEIC&quot;          
-## [110] &quot;DSC_078_sample-open.HEIC&quot;             
-## [111] &quot;DSC_077_ sample-closed.HEIC&quot;          
-## [112] &quot;DSC_077_ sample-organic_material.HEIC&quot;
-## [113] &quot;DSC_077_ sample-burrow?.HEIC&quot;         
-## [114] &quot;DSC_077_ sample-open.HEIC&quot;            
-## [115] &quot;DSC_077_ sample-closed.HEIC&quot;          
-## [116] &quot;DSC_076_ sample-open.jpeg&quot;            
-## [117] &quot;DSC_076_ sample-closed.jpeg&quot;          
-## [118] &quot;DSC_074_ sample-closed.HEIC&quot;          
-## [119] &quot;DSC_054_ sample-closed.jpeg&quot;          
-## [120] &quot;DSC_054_ sample-open.jpeg&quot;            
-## [121] &quot;DSC_049_ sample-closed.HEIC&quot;          
-## [122] &quot;DSC_049_ sample-open.HEIC&quot;            
-## [123] &quot;DSC_042_ sample-open.HEIC&quot;            
-## [124] &quot;DSC_042_sample-closed.HEIC&quot;           
-## [125] &quot;DSC_034_ sample-closed.HEIC&quot;          
-## [126] &quot;DSC_034_ sample-open.HEIC&quot;            
-## [127] &quot;DSC_033_ sample-closed.jpeg&quot;          
-## [128] &quot;DSC_033_ sample-open.jpeg&quot;            
-## [129] &quot;DSC_032_ sample-open.jpeg&quot;            
-## [130] &quot;DSC_029_sample-closed.HEIC&quot;           
-## [131] &quot;DSC_028_ sample-post_scrape.jpeg&quot;     
-## [132] &quot;DSC_028_ sample-open.jpeg&quot;            
-## [133] &quot;DSC_027_ sample-closed.HEIC&quot;          
-## [134] &quot;DSC_026_sample-open.HEIC&quot;             
-## [135] &quot;DSC_025_ sample-closed.HEIC&quot;          
-## [136] &quot;DSC_025_ sample-open.HEIC&quot;            
-## [137] &quot;DSC_021_ sample-closed.HEIC&quot;          
-## [138] &quot;DSC_021_ sample-open.HEIC&quot;            
-## [139] &quot;DSC_020_ sample-closed.jpg&quot;           
-## [140] &quot;DSC_017_ sample-closed.HEIC&quot;          
-## [141] &quot;DSC_017_ sample-open.HEIC&quot;            
-## [142] &quot;DSC_015_sample-closed.HEIC&quot;           
-## [143] &quot;DSC_015_sample-open.HEIC&quot;             
-## [144] &quot;DSC_014_sample-closed.HEIC&quot;           
-## [145] &quot;DSC_014_sample-open.HEIC&quot;             
-## [146] &quot;DSC_029_sample-open.HEIC&quot;             
-## [147] &quot;DSC_055_sample-open.HEIC&quot;             
-## [148] &quot;DSC_055_sample-closed.HEIC&quot;           
-## [149] &quot;DSC_099_sample-closed.HEIC&quot;           
-## [150] &quot;DSC_043_sample-open.HEIC&quot;             
-## [151] &quot;DSC_043_sample-closed.HEIC&quot;           
-## [152] &quot;DSC_074_sample-open.HEIC&quot;             
-## [153] &quot;DSC_030_sample-open.jpg&quot;              
-## [154] &quot;DSC_030_sample-closed_2.jpg&quot;          
-## [155] &quot;DSC_030_sample-closed.jpg&quot;            
-## [156] &quot;DSC_040_sample-open.jpg&quot;              
-## [157] &quot;DSC_040_sample-closed.jpg&quot;            
-## [158] &quot;DSC_041_sample-open.jpg&quot;              
-## [159] &quot;DSC_041_sample-closed.jpg&quot;            
-## [160] &quot;DSC_050_sample-open_2.jpg&quot;            
-## [161] &quot;DSC_050_sample-open.jpg&quot;              
-## [162] &quot;DSC_050_sample-closed.jpg&quot;            
-## [163] &quot;DSC_051_sample-open.jpg&quot;              
-## [164] &quot;DSC_051_sample-closed.jpg&quot;            
-## [165] &quot;DSC_056_sample-open.jpg&quot;              
-## [166] &quot;DSC_056_sample-closed.jpg&quot;            
-## [167] &quot;DSC_082_sample-open.jpg&quot;              
-## [168] &quot;DSC_082_sample-closed.jpg&quot;            
-## [169] &quot;DSC_085_sample-open.jpg&quot;              
-## [170] &quot;DSC_085_sample-closed.jpg&quot;            
-## [171] &quot;DSC_126_sample-open.jpg&quot;              
-## [172] &quot;DSC_126_sample-closed.jpg&quot;            
-## [173] &quot;DSC_130_sample-open.jpg&quot;              
-## [174] &quot;DSC_130_sample-closed_2.jpg&quot;          
-## [175] &quot;DSC_130_sample-closed.jpg&quot;            
-## [176] &quot;DSC_133_sample-open.jpg&quot;              
-## [177] &quot;DSC_133_sample-closed.jpg&quot;            
-## [178] &quot;DSC_022_sample-closed.jpg&quot;            
-## [179] &quot;DSC_022_sample-open.jpg&quot;              
-## [180] &quot;DSC_020_sample-open.jpg&quot;              
-## [181] &quot;DSC_019_sample-closed.jpg&quot;            
-## [182] &quot;DSC_019_sample-open.jpg&quot;              
-## [183] &quot;DSC_010_sample-closed.jpg&quot;            
-## [184] &quot;DSC_010_sample-open.jpg&quot;              
-## [185] &quot;DSC_093_ L-ROOT_ROCK.jpeg&quot;            
-## [186] &quot;DSC_046_LROOT_ROCK.jpg&quot;               
-## [187] &quot;DSC_081_ L-ROOT_ROCK.jpeg&quot;            
-## [188] &quot;DSC_111_L-ROOT+ROCK.HEIC&quot;             
-## [189] &quot;DSC_012_L-ROOT_ROCK.jpg&quot;              
-## [190] &quot;DSC_009_L-ROOT_ROCK.jpg&quot;              
-## [191] &quot;DSC_108_L-ROOT_ROCK.HEIC&quot;             
-## [192] &quot;DSC_073_L-ROOT&quot;                       
-## [193] &quot;DSC_096_LROOT_ROCK.jpg&quot;               
-## [194] &quot;DSC_103_LROOT_ROCK.jpg&quot;               
-## [195] &quot;DSC_102_LROOT_ROCK.jpg&quot;               
-## [196] &quot;DSC_106_LROOT_ROCK.jpg&quot;               
-## [197] &quot;DSC_107_LROOT_ROCK.jpg&quot;               
-## [198] &quot;DSC_018_L-ROOT_ROCK.jpg&quot;              
-## [199] &quot;DSC_024_L-ROOT_ROCK.jpg&quot;              
-## [200] &quot;DSC_023_L-ROOT_ROCK.jpg&quot;              
-## [201] &quot;DSC_031_L-ROOT_ROCK.jpg&quot;              
-## [202] &quot;DSC_091_ L-ROOT_ROCK.jpeg&quot;            
-## [203] &quot;DSC_080_L-ROOT_ROCK.jpeg&quot;             
-## [204] &quot;DSC_084_ L-ROOT_ROCK.jpeg&quot;            
-## [205] &quot;DSC_092_ L-ROOT_ROCK.jpeg&quot;            
-## [206] &quot;DSC_109_ L-ROOT_ROCK.jpeg&quot;            
-## [207] &quot;DSC_071_ L-ROOT_ROCK.jpeg&quot;            
-## [208] &quot;DSC_089_ L-ROOT_ROCK.jpeg&quot;            
-## [209] &quot;DSC_072 _L-ROOT_ROCK.jpeg&quot;            
-## [210] &quot;DSC_112_L-ROOT_ROCK.jpeg&quot;             
-## [211] &quot;DSC_110_L-ROOT_ROCK.jpeg&quot;             
-## [212] &quot;DSC_090_L-ROOT_ROCK.jpeg&quot;             
-## [213] &quot;DSC_BF_300-500_ segment&quot;              
-## [214] &quot;DSC_UZ_150-300_ segment.HEIC&quot;         
-## [215] &quot;DSC_UZ_0-150_ segment.HEIC&quot;           
-## [216] &quot;DSC_UZ_0-150_ segment.HEIC&quot;           
-## [217] &quot;DSC_UM_150-300_ segment.HEIC&quot;         
-## [218] &quot;DSC_UM_0-150_ segment.HEIC&quot;           
-## [219] &quot;DSC_UM_0-150_ segment.HEIC&quot;           
-## [220] &quot;DSC_UJ_0-150_ segment.HEIC&quot;           
-## [221] &quot;DSC_U-01_150-300_ segment.HEIC&quot;       
-## [222] &quot;DSC_U-01_0-150_ segment.HEIC&quot;         
-## [223] &quot;DSC_U-01_0-150_ segment-capped.HEIC&quot;  
-## [224] &quot;DSC_BU_0-150_ segment.jpeg&quot;           
-## [225] &quot;DSC_BS_0-150_ segment.HEIC&quot;           
-## [226] &quot;DSC_BR_0-150_ segment.HEIC&quot;           
-## [227] &quot;DSC_BH_300-500_ segment.HEIC&quot;         
-## [228] &quot;DSC_BH_150-300_ segment.HEIC&quot;         
-## [229] &quot;DSC_BH_0-150_ segment.HEIC&quot;           
-## [230] &quot;DSC_BE_300+_ segment.HEIC&quot;            
-## [231] &quot;DSC_BE_150-300_ segment&quot;              
-## [232] &quot;DSC_BE_0-150_ segment +top&quot;           
-## [233] &quot;DSC_BE_0-150_segment&quot;                 
-## [234] &quot;IMG_1100.HEIC&quot;                        
-## [235] &quot;IMG_1071.HEIC&quot;                        
-## [236] &quot;IMG_2710.jpeg&quot;                        
-## [237] &quot;IMG_1058.HEIC&quot;</code></pre>
+<pre><code>##   [1] &quot;DSC_032_sampleclosed.jpeg&quot;            
+##   [2] &quot;DSC_028_sampleclosed.jpeg&quot;            
+##   [3] &quot;DSC_016_A-B-split&quot;                    
+##   [4] &quot;DSC_016_sample-open2&quot;                 
+##   [5] &quot;DSC_016_sample-open&quot;                  
+##   [6] &quot;DSC_016_sample-closed-bottomEnd&quot;      
+##   [7] &quot;DSC_016_sample-closed&quot;                
+##   [8] &quot;DSC_016_sample-closed-topEnd&quot;         
+##   [9] &quot;O-Horizons_and_Shoes&quot;                 
+##  [10] &quot;DSC_016_ sample-open.HEIC&quot;            
+##  [11] &quot;DSC_026_sample-closed.HEIC&quot;           
+##  [12] &quot;DSC_129_ sample-closed.HEIC&quot;          
+##  [13] &quot;DSC_129_ sample-open.HEIC&quot;            
+##  [14] &quot;DSC_037_ sample-closed.HEIC&quot;          
+##  [15] &quot;DSC_037_ sample-open.HEIC&quot;            
+##  [16] &quot;DSC_075_ sample-open.jpeg&quot;            
+##  [17] &quot;DSC_075_ sample-closed.jpeg&quot;          
+##  [18] &quot;DSC_075?_ sample-open.jpeg&quot;           
+##  [19] &quot;DSC_039_sample-closed.HEIC&quot;           
+##  [20] &quot;DSC_127_ sample-open.jpeg&quot;            
+##  [21] &quot;DSC_039_sample-open.HEIC&quot;             
+##  [22] &quot;DSC_100_sample-open.HEIC&quot;             
+##  [23] &quot;DSC_132_ sample-closed.HEIC&quot;          
+##  [24] &quot;DSC_132_ sample-open.HEIC&quot;            
+##  [25] &quot;DSC_131_ sample-closed.HEIC&quot;          
+##  [26] &quot;DSC_131_ sample-open.HEIC&quot;            
+##  [27] &quot;DSC_128_ sample-closed.HEIC&quot;          
+##  [28] &quot;DSC_128_ sample-open.HEIC&quot;            
+##  [29] &quot;DSC_127_ sample-closed.jpeg&quot;          
+##  [30] &quot;DSC_101_ sample-closed.HEIC&quot;          
+##  [31] &quot;DSC_100_ sample-closed.HEIC&quot;          
+##  [32] &quot;DSC_099_ sample-open.jpeg&quot;            
+##  [33] &quot;DSC_098_ sample-closed.HEIC&quot;          
+##  [34] &quot;DSC_086_ sample-closed.jpeg&quot;          
+##  [35] &quot;DSC_086_ sample-open.HEIC&quot;            
+##  [36] &quot;DSC_086_ sample-horizon?.jpeg&quot;        
+##  [37] &quot;DSC_078_ sample-closed.HEIC&quot;          
+##  [38] &quot;DSC_078_sample-open.HEIC&quot;             
+##  [39] &quot;DSC_077_ sample-closed.HEIC&quot;          
+##  [40] &quot;DSC_077_ sample-organic_material.HEIC&quot;
+##  [41] &quot;DSC_077_ sample-burrow?.HEIC&quot;         
+##  [42] &quot;DSC_077_ sample-open.HEIC&quot;            
+##  [43] &quot;DSC_077_ sample-closed.HEIC&quot;          
+##  [44] &quot;DSC_076_ sample-open.jpeg&quot;            
+##  [45] &quot;DSC_076_ sample-closed.jpeg&quot;          
+##  [46] &quot;DSC_074_ sample-closed.HEIC&quot;          
+##  [47] &quot;DSC_054_ sample-closed.jpeg&quot;          
+##  [48] &quot;DSC_054_ sample-open.jpeg&quot;            
+##  [49] &quot;DSC_049_ sample-closed.HEIC&quot;          
+##  [50] &quot;DSC_049_ sample-open.HEIC&quot;            
+##  [51] &quot;DSC_042_ sample-open.HEIC&quot;            
+##  [52] &quot;DSC_042_sample-closed.HEIC&quot;           
+##  [53] &quot;DSC_034_ sample-closed.HEIC&quot;          
+##  [54] &quot;DSC_034_ sample-open.HEIC&quot;            
+##  [55] &quot;DSC_033_ sample-closed.jpeg&quot;          
+##  [56] &quot;DSC_033_ sample-open.jpeg&quot;            
+##  [57] &quot;DSC_032_ sample-open.jpeg&quot;            
+##  [58] &quot;DSC_029_sample-closed.HEIC&quot;           
+##  [59] &quot;DSC_028_ sample-post_scrape.jpeg&quot;     
+##  [60] &quot;DSC_028_ sample-open.jpeg&quot;            
+##  [61] &quot;DSC_027_ sample-closed.HEIC&quot;          
+##  [62] &quot;DSC_026_sample-open.HEIC&quot;             
+##  [63] &quot;DSC_025_ sample-closed.HEIC&quot;          
+##  [64] &quot;DSC_025_ sample-open.HEIC&quot;            
+##  [65] &quot;DSC_021_ sample-closed.HEIC&quot;          
+##  [66] &quot;DSC_021_ sample-open.HEIC&quot;            
+##  [67] &quot;DSC_020_ sample-closed.jpg&quot;           
+##  [68] &quot;DSC_017_ sample-closed.HEIC&quot;          
+##  [69] &quot;DSC_017_ sample-open.HEIC&quot;            
+##  [70] &quot;DSC_015_sample-closed.HEIC&quot;           
+##  [71] &quot;DSC_015_sample-open.HEIC&quot;             
+##  [72] &quot;DSC_014_sample-closed.HEIC&quot;           
+##  [73] &quot;DSC_014_sample-open.HEIC&quot;             
+##  [74] &quot;DSC_029_sample-open.HEIC&quot;             
+##  [75] &quot;DSC_055_sample-open.HEIC&quot;             
+##  [76] &quot;DSC_055_sample-closed.HEIC&quot;           
+##  [77] &quot;DSC_099_sample-closed.HEIC&quot;           
+##  [78] &quot;DSC_043_sample-open.HEIC&quot;             
+##  [79] &quot;DSC_043_sample-closed.HEIC&quot;           
+##  [80] &quot;DSC_074_sample-open.HEIC&quot;             
+##  [81] &quot;DSC_030_sample-open.jpg&quot;              
+##  [82] &quot;DSC_030_sample-closed_2.jpg&quot;          
+##  [83] &quot;DSC_030_sample-closed.jpg&quot;            
+##  [84] &quot;DSC_040_sample-open.jpg&quot;              
+##  [85] &quot;DSC_040_sample-closed.jpg&quot;            
+##  [86] &quot;DSC_041_sample-open.jpg&quot;              
+##  [87] &quot;DSC_041_sample-closed.jpg&quot;            
+##  [88] &quot;DSC_050_sample-open_2.jpg&quot;            
+##  [89] &quot;DSC_050_sample-open.jpg&quot;              
+##  [90] &quot;DSC_050_sample-closed.jpg&quot;            
+##  [91] &quot;DSC_051_sample-open.jpg&quot;              
+##  [92] &quot;DSC_051_sample-closed.jpg&quot;            
+##  [93] &quot;DSC_056_sample-open.jpg&quot;              
+##  [94] &quot;DSC_056_sample-closed.jpg&quot;            
+##  [95] &quot;DSC_082_sample-open.jpg&quot;              
+##  [96] &quot;DSC_082_sample-closed.jpg&quot;            
+##  [97] &quot;DSC_085_sample-open.jpg&quot;              
+##  [98] &quot;DSC_085_sample-closed.jpg&quot;            
+##  [99] &quot;DSC_126_sample-open.jpg&quot;              
+## [100] &quot;DSC_126_sample-closed.jpg&quot;            
+## [101] &quot;DSC_130_sample-open.jpg&quot;              
+## [102] &quot;DSC_130_sample-closed_2.jpg&quot;          
+## [103] &quot;DSC_130_sample-closed.jpg&quot;            
+## [104] &quot;DSC_133_sample-open.jpg&quot;              
+## [105] &quot;DSC_133_sample-closed.jpg&quot;            
+## [106] &quot;DSC_022_sample-closed.jpg&quot;            
+## [107] &quot;DSC_022_sample-open.jpg&quot;              
+## [108] &quot;DSC_020_sample-open.jpg&quot;              
+## [109] &quot;DSC_019_sample-closed.jpg&quot;            
+## [110] &quot;DSC_019_sample-open.jpg&quot;              
+## [111] &quot;DSC_010_sample-closed.jpg&quot;            
+## [112] &quot;DSC_010_sample-open.jpg&quot;              
+## [113] &quot;DSC_078_SHOE_node&quot;                    
+## [114] &quot;DSC_016_dead&quot;                         
+## [115] &quot;DSC_DEAD-ROOT_Example.HEIC&quot;           
+## [116] &quot;DSC_DEAD-ROOT_Example.HEIC&quot;           
+## [117] &quot;Norbaya_Shoes.jpg&quot;                    
+## [118] &quot;DSC_133_trim_procedure.mp4&quot;           
+## [119] &quot;DSC_078_SHOE_rock&quot;                    
+## [120] &quot;DSC_020_SHOE_rock&quot;                    
+## [121] &quot;DSC_028_SHOE_rock&quot;                    
+## [122] &quot;DSC_033_SHOE_rock&quot;                    
+## [123] &quot;DSC_086_L-ROOT_ROCK&quot;                  
+## [124] &quot;DSC_016_L-ROOT_ROCK.HEIC&quot;             
+## [125] &quot;DSC_033_ROCK.HEIC&quot;                    
+## [126] &quot;IMG_1184.HEIC&quot;                        
+## [127] &quot;DSC_130_rock.jpg&quot;                     
+## [128] &quot;DSC_075_L-ROOT_ROCK.jpeg&quot;             
+## [129] &quot;DSC_127_L-ROOT_ROCK.jpeg&quot;             
+## [130] &quot;DSC_076_L-ROOT_ROCK.HEIC&quot;             
+## [131] &quot;DSC_017_L-ROOT_ROCK.jpeg&quot;             
+## [132] &quot;DSC_021_L-ROOT_ROCK.HEIC&quot;             
+## [133] &quot;DSC_019_rock.jpg&quot;                     
+## [134] &quot;DSC_019_lroot.jpg&quot;                    
+## [135] &quot;DSC_010_Lroot.jpg&quot;                    
+## [136] &quot;DSC_017_ROCK.HEIC&quot;                    
+## [137] &quot;DSC_017_L-ROOT.HEIC&quot;                  
+## [138] &quot;DSC_029_ROCK.HEIC&quot;                    
+## [139] &quot;DSC_029_L-ROOT.HEIC&quot;                  
+## [140] &quot;DSC_077_ROCK.HEIC&quot;                    
+## [141] &quot;DSC_077_L-ROOT.HEIC&quot;                  
+## [142] &quot;DSC_055-rock.HEIC&quot;                    
+## [143] &quot;DSC_128_ROCK.HEIC&quot;                    
+## [144] &quot;DSC_033_ROCK.HEIC&quot;                    
+## [145] &quot;DSC_037_ROCK.HEIC&quot;                    
+## [146] &quot;DSC_037_L-ROOT.HEIC&quot;                  
+## [147] &quot;DSC_129_ROCK.HEIC&quot;                    
+## [148] &quot;DSC_026_L-ROCK.HEIC&quot;                  
+## [149] &quot;DSC_082_rock.jpg&quot;                     
+## [150] &quot;DSC_130_lroot.jpg&quot;                    
+## [151] &quot;DSC_030_lroot.jpg&quot;                    
+## [152] &quot;DSC_030_rock.jpg&quot;                     
+## [153] &quot;DSC_041_rock.jpg&quot;                     
+## [154] &quot;DSC_022_rock.jpg&quot;                     
+## [155] &quot;DSC_010_rock.jpg&quot;                     
+## [156] &quot;DSC_040_rock_3.jpg&quot;                   
+## [157] &quot;DSC_040_rock_2.jpg&quot;                   
+## [158] &quot;DSC_040_rock.jpg&quot;                     
+## [159] &quot;DSC_026_rock.jpg&quot;                     
+## [160] &quot;DSC_056_rock.jpg&quot;                     
+## [161] &quot;DSC_056_lroot.jpg&quot;                    
+## [162] &quot;DSC_133_lroot.jpg&quot;                    
+## [163] &quot;DSC_133_rock.jpg&quot;                     
+## [164] &quot;DSC_126_lroot.jpg&quot;                    
+## [165] &quot;DSC_126_rock.jpg&quot;                     
+## [166] &quot;DSC_050_lroot.jpg&quot;                    
+## [167] &quot;DSC_050_rock.jpg&quot;                     
+## [168] &quot;DSC_020_lroot.jpg&quot;                    
+## [169] &quot;DSC_020_rock.jpg&quot;                     
+## [170] &quot;DSC_051_rock.jpg&quot;                     
+## [171] &quot;DSC_085_rock.jpg&quot;                     
+## [172] &quot;DSC_093_L-ROOT_ROCK.jpeg&quot;             
+## [173] &quot;DSC_100_L-ROOT_ROCK.jpeg&quot;             
+## [174] &quot;DSC_043_L-ROOT_ROCK.jpeg&quot;             
+## [175] &quot;DSC_032_L-ROOT_ROCK.jpeg&quot;             
+## [176] &quot;DSC_027_L-ROOT_ROCK.HEIC&quot;             
+## [177] &quot;DSC_132_L-ROOT_ROCK.HEIC&quot;             
+## [178] &quot;DSC_034_L-ROOT_ROCK.HEIC&quot;             
+## [179] &quot;DSC_078_L-ROOT_ROCK.HEIC&quot;             
+## [180] &quot;DSC_098_L-ROOT_ROCK.HEIC&quot;             
+## [181] &quot;DSC_042_L-ROOT_ROCK.HEIC&quot;             
+## [182] &quot;DSC_074_L-ROOT_ROCK.HEIC&quot;             
+## [183] &quot;DSC_049_L-ROCK.HEIC&quot;                  
+## [184] &quot;DSC_131_L-ROOT_ROCK.HEIC&quot;             
+## [185] &quot;DSC_025_L-ROOT_ROCK.HEIC&quot;             
+## [186] &quot;DSC_015_L-ROOT_ROCK.HEIC&quot;             
+## [187] &quot;DSC_093_ L-ROOT_ROCK.jpeg&quot;            
+## [188] &quot;DSC_046_LROOT_ROCK.jpg&quot;               
+## [189] &quot;DSC_081_ L-ROOT_ROCK.jpeg&quot;            
+## [190] &quot;DSC_111_L-ROOT+ROCK.HEIC&quot;             
+## [191] &quot;DSC_012_L-ROOT_ROCK.jpg&quot;              
+## [192] &quot;DSC_009_L-ROOT_ROCK.jpg&quot;              
+## [193] &quot;DSC_108_L-ROOT_ROCK.HEIC&quot;             
+## [194] &quot;DSC_073_L-ROOT&quot;                       
+## [195] &quot;DSC_096_LROOT_ROCK.jpg&quot;               
+## [196] &quot;DSC_103_LROOT_ROCK.jpg&quot;               
+## [197] &quot;DSC_102_LROOT_ROCK.jpg&quot;               
+## [198] &quot;DSC_106_LROOT_ROCK.jpg&quot;               
+## [199] &quot;DSC_107_LROOT_ROCK.jpg&quot;               
+## [200] &quot;DSC_018_L-ROOT_ROCK.jpg&quot;              
+## [201] &quot;DSC_024_L-ROOT_ROCK.jpg&quot;              
+## [202] &quot;DSC_023_L-ROOT_ROCK.jpg&quot;              
+## [203] &quot;DSC_031_L-ROOT_ROCK.jpg&quot;              
+## [204] &quot;DSC_091_ L-ROOT_ROCK.jpeg&quot;            
+## [205] &quot;DSC_080_L-ROOT_ROCK.jpeg&quot;             
+## [206] &quot;DSC_084_ L-ROOT_ROCK.jpeg&quot;            
+## [207] &quot;DSC_092_ L-ROOT_ROCK.jpeg&quot;            
+## [208] &quot;DSC_109_ L-ROOT_ROCK.jpeg&quot;            
+## [209] &quot;DSC_071_ L-ROOT_ROCK.jpeg&quot;            
+## [210] &quot;DSC_089_ L-ROOT_ROCK.jpeg&quot;            
+## [211] &quot;DSC_072 _L-ROOT_ROCK.jpeg&quot;            
+## [212] &quot;DSC_112_L-ROOT_ROCK.jpeg&quot;             
+## [213] &quot;DSC_110_L-ROOT_ROCK.jpeg&quot;             
+## [214] &quot;DSC_090_L-ROOT_ROCK.jpeg&quot;             
+## [215] &quot;DSC_BF_300-500_ segment&quot;              
+## [216] &quot;DSC_UZ_150-300_ segment.HEIC&quot;         
+## [217] &quot;DSC_UZ_0-150_ segment.HEIC&quot;           
+## [218] &quot;DSC_UZ_0-150_ segment.HEIC&quot;           
+## [219] &quot;DSC_UM_150-300_ segment.HEIC&quot;         
+## [220] &quot;DSC_UM_0-150_ segment.HEIC&quot;           
+## [221] &quot;DSC_UM_0-150_ segment.HEIC&quot;           
+## [222] &quot;DSC_UJ_0-150_ segment.HEIC&quot;           
+## [223] &quot;DSC_U-01_150-300_ segment.HEIC&quot;       
+## [224] &quot;DSC_U-01_0-150_ segment.HEIC&quot;         
+## [225] &quot;DSC_U-01_0-150_ segment-capped.HEIC&quot;  
+## [226] &quot;DSC_BU_0-150_ segment.jpeg&quot;           
+## [227] &quot;DSC_BS_0-150_ segment.HEIC&quot;           
+## [228] &quot;DSC_BR_0-150_ segment.HEIC&quot;           
+## [229] &quot;DSC_BH_300-500_ segment.HEIC&quot;         
+## [230] &quot;DSC_BH_150-300_ segment.HEIC&quot;         
+## [231] &quot;DSC_BH_0-150_ segment.HEIC&quot;           
+## [232] &quot;DSC_BE_300+_ segment.HEIC&quot;            
+## [233] &quot;DSC_BE_150-300_ segment&quot;              
+## [234] &quot;DSC_BE_0-150_ segment +top&quot;           
+## [235] &quot;DSC_BE_0-150_segment&quot;                 
+## [236] &quot;IMG_1100.HEIC&quot;                        
+## [237] &quot;IMG_1071.HEIC&quot;                        
+## [238] &quot;IMG_2710.jpeg&quot;                        
+## [239] &quot;IMG_1058.HEIC&quot;</code></pre>
 <pre class="r"><code>photo_names_df = as.data.frame(photo_filenames) # store the file names in a dataframe
 
 head(photo_names_df)</code></pre>
-<pre><code>##              photo_filenames
-## 1          DSC_078_SHOE_node
-## 2               DSC_016_dead
-## 3 DSC_DEAD-ROOT_Example.HEIC
-## 4 DSC_DEAD-ROOT_Example.HEIC
-## 5          Norbaya_Shoes.jpg
-## 6 DSC_133_trim_procedure.mp4</code></pre>
+<pre><code>##                   photo_filenames
+## 1       DSC_032_sampleclosed.jpeg
+## 2       DSC_028_sampleclosed.jpeg
+## 3               DSC_016_A-B-split
+## 4            DSC_016_sample-open2
+## 5             DSC_016_sample-open
+## 6 DSC_016_sample-closed-bottomEnd</code></pre>
 <pre class="r"><code># digest file names into Sample_ID, content specifiers (photo type?), and the file extension
 photo_content_df = photo_names_df %&gt;% 
   rename(name = photo_filenames) %&gt;%
@@ -808,16 +809,16 @@ photo_content_df = photo_names_df %&gt;%
   unite(Sample_ID, c(DSC, sIDnum), sep = &quot;_&quot;) %&gt;% # puts DSC_[sample number] back together as the full sample id
   unite(content, c(content1, content2), sep = &quot;_&quot;) %&gt;% # puts everything else back together
   mutate(content = str_remove(content, &quot;_NA&quot;)) # take out those extra NAs I generated above for readability later</code></pre>
-<pre><code>## Warning: Expected 4 pieces. Missing pieces filled with `NA` in 156 rows [2, 3, 4, 5, 13,
-## 14, 15, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, ...].</code></pre>
+<pre><code>## Warning: Expected 4 pieces. Missing pieces filled with `NA` in 158 rows [1, 2, 3, 4, 5,
+## 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</code></pre>
 <pre class="r"><code>head(photo_content_df)</code></pre>
-<pre><code>##           Sample_ID            content
-## 1           DSC_078          SHOE_node
-## 2           DSC_016               dead
-## 3     DSC_DEAD-ROOT       Example.HEIC
-## 4     DSC_DEAD-ROOT       Example.HEIC
-## 5 Norbaya_Shoes.jpg                 NA
-## 6           DSC_133 trim_procedure.mp4</code></pre>
+<pre><code>##   Sample_ID                 content
+## 1   DSC_032       sampleclosed.jpeg
+## 2   DSC_028       sampleclosed.jpeg
+## 3   DSC_016               A-B-split
+## 4   DSC_016            sample-open2
+## 5   DSC_016             sample-open
+## 6   DSC_016 sample-closed-bottomEnd</code></pre>
 <p>Make the photo inventory!</p>
 <pre class="r"><code>photo_inventory = template %&gt;% 
   
@@ -846,12 +847,14 @@ photo_content_df = photo_names_df %&gt;%
   # log which sample IDs have a sample-closed photo
   mutate(photo_sampleClosed = case_when(
     str_detect(content, &quot;sample-closed&quot;) == TRUE ~ &quot;in_drive&quot;,
+    str_detect(content, &quot;sampleclosed&quot;) == TRUE ~ &quot;in_drive&quot;,
     .default = &quot;not_accounted_for&quot;,
    )) %&gt;%
   
   # log which sample IDs have a sample-open photo
   mutate(photo_sampleOpen = case_when(
     str_detect(content, &quot;sample-open&quot;) == TRUE ~ &quot;in_drive&quot;,
+    str_detect(content, &quot;sampleopen&quot;) == TRUE ~ &quot;in_drive&quot;,
     .default = &quot;not_accounted_for&quot;,
    )) %&gt;% 
   
@@ -894,13 +897,13 @@ drive_download(X_data_path, type = &quot;csv&quot;, path = local_path_x, overwri
 <pre><code>## • &#39;X_sample_data_transcribed&#39;
 ##   &lt;id: 1oCXKgk3WwmEzyilc4BA1vaA5vrcIuh9sCy2krHBkaN8&gt;</code></pre>
 <pre><code>## Saved locally as:</code></pre>
-<pre><code>## • &#39;Inputs/X_sample_data_transcribed_downloaded-20260730.csv&#39;</code></pre>
+<pre><code>## • &#39;Inputs/X_sample_data_transcribed_downloaded-20260731.csv&#39;</code></pre>
 <pre class="r"><code>drive_download(Y_data_path, type = &quot;csv&quot;, path = local_path_y, overwrite = TRUE)</code></pre>
 <pre><code>## File downloaded:</code></pre>
 <pre><code>## • &#39;YZ_sample_data_transcribed&#39;
 ##   &lt;id: 1-FowUmZ5mTc1P8aZ3IetY92lrHJBO68CamKw2aSXU8o&gt;</code></pre>
 <pre><code>## Saved locally as:</code></pre>
-<pre><code>## • &#39;Inputs/YZ_sample_data_transcribed_downloaded-20260730.csv&#39;</code></pre>
+<pre><code>## • &#39;Inputs/YZ_sample_data_transcribed_downloaded-20260731.csv&#39;</code></pre>
 <pre class="r"><code># decided not to be saving dribbles as below
 ### write_csv(X_data_path, &quot;Inputs/DRIBBLE_X_sample_data_transcribed_downloaded-20260722PM.csv&quot;) # should we be saving this metadata, in case file names get changed in google drive?
 ### write_csv(Y_data_path, &quot;Inputs/DRIBBLE_YZ_sample_data_transcribed_downloaded-20260722PM.csv&quot;) # should we be saving this metadata, in case file names get changed in google drive?</code></pre>
@@ -1168,7 +1171,7 @@ missing_photo_blame_trimmed = missing_photo_blame_trimmed %&gt;%
     
 
 missing_photo_blame_trimmed</code></pre>
-<pre><code>## # A tibble: 24 × 16
+<pre><code>## # A tibble: 23 × 16
 ##    Sample_ID photo_Lroot               Lroot_photo_by photo_ROCK   rock_photo_by
 ##    &lt;chr&gt;     &lt;chr&gt;                     &lt;chr&gt;          &lt;chr&gt;        &lt;chr&gt;        
 ##  1 DSC_013   not_accounted_for         AG             not_account… AG           
@@ -1177,11 +1180,11 @@ missing_photo_blame_trimmed</code></pre>
 ##  4 DSC_016B  not_accounted_for         EF             &#39;N/A&#39; marke… N/A          
 ##  5 DSC_027   in_drive                  EF             in_drive     EF           
 ##  6 DSC_028   not_accounted_for         NJD            in_drive     NJD          
-##  7 DSC_032   in_drive                  LB             in_drive     LB           
-##  8 DSC_035   not_accounted_for         VF             not_account… VF           
-##  9 DSC_036   not_accounted_for         VF             not_account… VF           
-## 10 DSC_038   not_accounted_for         VF             not_account… VF           
-## # ℹ 14 more rows
+##  7 DSC_035   not_accounted_for         VF             not_account… VF           
+##  8 DSC_036   not_accounted_for         VF             not_account… VF           
+##  9 DSC_038   not_accounted_for         VF             not_account… VF           
+## 10 DSC_039   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
+## # ℹ 13 more rows
 ## # ℹ 11 more variables: photo_sampleOpen &lt;chr&gt;, sampleOpen_photo_by &lt;chr&gt;,
 ## #   photo_sampleClosed &lt;chr&gt;, sampleClosed_photo_by &lt;chr&gt;,
 ## #   notes_during_collection_annotations &lt;chr&gt;,
@@ -1238,7 +1241,7 @@ so_lpm = lab_photos_missing %&gt;%
   filter(photo_sampleOpen == &quot;not_accounted_for&quot;)
 
 lab_photos_missing</code></pre>
-<pre><code>## # A tibble: 14 × 16
+<pre><code>## # A tibble: 13 × 16
 ##    Sample_ID photo_Lroot               Lroot_photo_by photo_ROCK   rock_photo_by
 ##    &lt;chr&gt;     &lt;chr&gt;                     &lt;chr&gt;          &lt;chr&gt;        &lt;chr&gt;        
 ##  1 DSC_016A  not_accounted_for         EF             not_account… EF           
@@ -1246,15 +1249,14 @@ lab_photos_missing</code></pre>
 ##  3 DSC_098   in_drive                  EF             in_drive     EF           
 ##  4 DSC_099   &#39;N/A&#39; marked on datasheet N/A            not_account… GDB          
 ##  5 DSC_055   &#39;N/A&#39; marked on datasheet N/A            not_account… GDB          
-##  6 DSC_032   in_drive                  LB             in_drive     LB           
-##  7 DSC_039   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
-##  8 DSC_054   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
-##  9 DSC_016B  not_accounted_for         EF             &#39;N/A&#39; marke… N/A          
-## 10 DSC_014   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
-## 11 DSC_101   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
-## 12 DSC_097   not_accounted_for         ND             not_account… ND           
-## 13 DSC_028   not_accounted_for         NJD            in_drive     NJD          
-## 14 DSC_085   not_accounted_for         SJS            in_drive     SJS          
+##  6 DSC_039   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
+##  7 DSC_054   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
+##  8 DSC_016B  not_accounted_for         EF             &#39;N/A&#39; marke… N/A          
+##  9 DSC_014   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
+## 10 DSC_101   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
+## 11 DSC_097   not_accounted_for         ND             not_account… ND           
+## 12 DSC_028   not_accounted_for         NJD            in_drive     NJD          
+## 13 DSC_085   not_accounted_for         SJS            in_drive     SJS          
 ## # ℹ 11 more variables: photo_sampleOpen &lt;chr&gt;, sampleOpen_photo_by &lt;chr&gt;,
 ## #   photo_sampleClosed &lt;chr&gt;, sampleClosed_photo_by &lt;chr&gt;,
 ## #   notes_during_collection_annotations &lt;chr&gt;,
@@ -1296,14 +1298,12 @@ lab_photos_missing</code></pre>
 ## #   Notes_during_collection &lt;chr&gt;, Notes_during_transcription &lt;chr&gt;,
 ## #   GDB_inventory_notes &lt;chr&gt;</code></pre>
 <pre class="r"><code>sc_lpm</code></pre>
-<pre><code>## # A tibble: 5 × 16
+<pre><code>## # A tibble: 3 × 16
 ##   Sample_ID photo_Lroot Lroot_photo_by photo_ROCK rock_photo_by photo_sampleOpen
 ##   &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;          &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;           
 ## 1 DSC_016A  not_accoun… EF             not_accou… EF            not_accounted_f…
-## 2 DSC_032   in_drive    LB             in_drive   LB            in_drive        
-## 3 DSC_016B  not_accoun… EF             &#39;N/A&#39; mar… N/A           not_accounted_f…
-## 4 DSC_097   not_accoun… ND             not_accou… ND            not_accounted_f…
-## 5 DSC_028   not_accoun… NJD            in_drive   NJD           in_drive        
+## 2 DSC_016B  not_accoun… EF             &#39;N/A&#39; mar… N/A           not_accounted_f…
+## 3 DSC_097   not_accoun… ND             not_accou… ND            not_accounted_f…
 ## # ℹ 10 more variables: sampleOpen_photo_by &lt;chr&gt;, photo_sampleClosed &lt;chr&gt;,
 ## #   sampleClosed_photo_by &lt;chr&gt;, notes_during_collection_annotations &lt;chr&gt;,
 ## #   notes_during_collection_narritive &lt;chr&gt;,
@@ -1327,7 +1327,7 @@ lab_photos_missing</code></pre>
 ## #   Notes_during_collection &lt;chr&gt;, Notes_during_transcription &lt;chr&gt;,
 ## #   GDB_inventory_notes &lt;chr&gt;</code></pre>
 <pre class="r"><code>lab_photos_missing</code></pre>
-<pre><code>## # A tibble: 14 × 16
+<pre><code>## # A tibble: 13 × 16
 ##    Sample_ID photo_Lroot               Lroot_photo_by photo_ROCK   rock_photo_by
 ##    &lt;chr&gt;     &lt;chr&gt;                     &lt;chr&gt;          &lt;chr&gt;        &lt;chr&gt;        
 ##  1 DSC_016A  not_accounted_for         EF             not_account… EF           
@@ -1335,15 +1335,14 @@ lab_photos_missing</code></pre>
 ##  3 DSC_098   in_drive                  EF             in_drive     EF           
 ##  4 DSC_099   &#39;N/A&#39; marked on datasheet N/A            not_account… GDB          
 ##  5 DSC_055   &#39;N/A&#39; marked on datasheet N/A            not_account… GDB          
-##  6 DSC_032   in_drive                  LB             in_drive     LB           
-##  7 DSC_039   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
-##  8 DSC_054   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
-##  9 DSC_016B  not_accounted_for         EF             &#39;N/A&#39; marke… N/A          
-## 10 DSC_014   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
-## 11 DSC_101   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
-## 12 DSC_097   not_accounted_for         ND             not_account… ND           
-## 13 DSC_028   not_accounted_for         NJD            in_drive     NJD          
-## 14 DSC_085   not_accounted_for         SJS            in_drive     SJS          
+##  6 DSC_039   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
+##  7 DSC_054   &#39;N/A&#39; marked on datasheet N/A            not_account… LB           
+##  8 DSC_016B  not_accounted_for         EF             &#39;N/A&#39; marke… N/A          
+##  9 DSC_014   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
+## 10 DSC_101   &#39;N/A&#39; marked on datasheet N/A            not_account… ND           
+## 11 DSC_097   not_accounted_for         ND             not_account… ND           
+## 12 DSC_028   not_accounted_for         NJD            in_drive     NJD          
+## 13 DSC_085   not_accounted_for         SJS            in_drive     SJS          
 ## # ℹ 11 more variables: photo_sampleOpen &lt;chr&gt;, sampleOpen_photo_by &lt;chr&gt;,
 ## #   photo_sampleClosed &lt;chr&gt;, sampleClosed_photo_by &lt;chr&gt;,
 ## #   notes_during_collection_annotations &lt;chr&gt;,
@@ -1364,7 +1363,7 @@ lab_photos_missing</code></pre>
   select(!c(Lroot_photo_by, rock_photo_by, sampleOpen_photo_by, sampleClosed_photo_by))
 
 missing_photos_long</code></pre>
-<pre><code>## # A tibble: 43 × 4
+<pre><code>## # A tibble: 41 × 4
 ##    Sample_ID name               value             photo_by
 ##    &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;             &lt;chr&gt;   
 ##  1 DSC_013   photo_Lroot        not_accounted_for AG      
@@ -1377,7 +1376,7 @@ missing_photos_long</code></pre>
 ##  8 DSC_016B  photo_Lroot        not_accounted_for EF      
 ##  9 DSC_016B  photo_sampleOpen   not_accounted_for AG / GDB
 ## 10 DSC_016B  photo_sampleClosed not_accounted_for AG      
-## # ℹ 33 more rows</code></pre>
+## # ℹ 31 more rows</code></pre>
 <p>investigate inconsistencies in above result</p>
 <p>initials recorded in both data sheets – only relevant during
 202060722 AM! I found the errors and corrected them</p>
@@ -1455,7 +1454,7 @@ YZ_missing_initials</code></pre>
 ## #   post_trim_photo_by &lt;chr&gt;, removed_soil_mass_g &lt;chr&gt;, …</code></pre>
 <pre class="r"><code>photos_to_request = missing_photos_long %&gt;% arrange(photo_by)
 photos_to_request</code></pre>
-<pre><code>## # A tibble: 43 × 4
+<pre><code>## # A tibble: 41 × 4
 ##    Sample_ID name               value             photo_by
 ##    &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;             &lt;chr&gt;   
 ##  1 DSC_013   photo_Lroot        not_accounted_for AG      
@@ -1468,7 +1467,7 @@ photos_to_request</code></pre>
 ##  8 DSC_072   photo_ROCK         not_accounted_for CST     
 ##  9 DSC_016A  photo_Lroot        not_accounted_for EF      
 ## 10 DSC_016A  photo_ROCK         not_accounted_for EF      
-## # ℹ 33 more rows</code></pre>
+## # ℹ 31 more rows</code></pre>
 <pre class="r"><code>View(photos_to_request)
 write_csv(photos_to_request, &quot;Results/photos_to_request.csv&quot;)</code></pre>
 </div>
