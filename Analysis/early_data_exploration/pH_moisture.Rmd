@@ -89,3 +89,12 @@ ggplot(filter(psm, FM_moisture_percent < 200), aes(x = sample_bottom_depth, y = 
   geom_point() 
 ```
 
+quick look at depth, coarsely (according to fraction specs, not actual bottom depth of bottommost samples)
+```{r}
+depth = ggplot(psm, aes(microsite, sample_bottom_depth, fill = Site, color = tnt)) +
+  points +
+  fillcolor +
+  background 
+
+depth
+```

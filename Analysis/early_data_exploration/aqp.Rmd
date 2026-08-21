@@ -1,0 +1,153 @@
+---
+title: "Early DSC June data exploration with plotSPC()"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(aqp)
+```
+Read in metadata, rename columns to play nice with aqp()
+```{r}
+psm = read_csv("../../TidyData/Metadata/make_per_sample_metadata/Results/DSC_per_sample_metadata_compiled-20260819.csv")
+colnames(psm)
+
+psm = psm %>% 
+  rename(name = Sample_ID,
+         id = Core_ID,
+         top = sample_top_depth,
+         bottom = sample_bottom_depth) %>%
+  filter(!is.na(top))
+
+depths(psm) <- id ~ top + bottom
+
+```
+# Make crude soil moisture plots
+```{r}
+plotSPC(psm, 
+        name = 'name',
+        color = 'FM_moisture_percent' )
+```
+
+```{r}
+# mask the all-root sample because it's throwing off the color scale
+h = horizons(psm)
+h$FM_moisture_percent = as.numeric(h$FM_moisture_percent)
+h = h %>% mutate(
+  FM_moisture_percent = case_when(
+    FM_moisture_percent > 60 ~ NA,
+    FM_moisture_percent < 60 ~ FM_moisture_percent
+  ))
+horizons(psm) = h
+
+
+plotSPC(psm, 
+        name = 'name',
+        color = 'FM_moisture_percent' )
+```
+
+# Make crude pH plots
+
+```{r}
+# use average of two pH measurements for each sample
+h = horizons(psm)
+h = h %>% mutate(
+  pH = (pH_1st_measurement + pH_2nd_measurement)/ 2
+  )
+horizons(psm) = h
+
+plotSPC(psm, 
+        name = 'name',
+        color = 'pH', 
+        col.palette = hcl.colors(14, "Harmonic"))
+```
+```{r}
+library(aqp)
+library(dplyr)
+
+# 1. Update pH horizon values
+h <- horizons(psm) %>% 
+  mutate(pH = (pH_1st_measurement + pH_2nd_measurement) / 2)
+horizons(psm) <- h
+
+# 2. Extract Site and microsite from horizons (getting 1 row per profile)
+h_site_info <- horizons(psm) %>%
+  group_by(id) %>% # replace 'id' with your profile ID column if different (e.g., idcol(psm))
+  dplyr::slice(1) %>%
+  ungroup()
+
+# 3. Build hierarchical plot order (Site, then microsite)
+hierarchical_order <- order(h_site_info$Site, h_site_info$microsite)
+
+# 4. Plot profiles grouped by Site and microsite
+plotSPC(
+  psm, 
+  name = 'name',
+  color = 'pH', 
+  col.palette = hcl.colors(14, "Harmonic"),
+  plot.order = hierarchical_order
+)
+```
+
+# Make crude Lroot plot 
+```{r}
+
+# make Lroot mass numeric
+h = horizons(psm)
+h = h %>% mutate(
+  Lroot_full_mass_g = as.numeric(Lroot_full_mass_g),
+  Lroot_empty_mass_g = as.numeric(Lroot_empty_mass_g),
+  Lroot_mass = Lroot_full_mass_g - Lroot_empty_mass_g, 
+  thickness = bottom - top,
+  Lroot_relative = Lroot_mass / thickness
+
+) 
+horizons(psm) = h
+
+
+plotSPC(psm, 
+        name = 'name',
+        color = 'Lroot_relative' )
+
+# ok some of these NAs should be 0s (where there were no roots so nothing was written) but some of them are because we forgot to weight; need to go into notes and tidy this
+```
+# Make crude rock mass plot
+```{r}
+
+# make rock mass numeric
+h = horizons(psm)
+h = h %>% mutate(
+  rock_full_mass_g = as.numeric(rock_full_mass_g),
+  rock_empty_mass_g = as.numeric(rock_empty_mass_g),
+  rock_mass = rock_full_mass_g - rock_empty_mass_g,
+  thickness = bottom - top,
+  volume = thickness * 4.8 * pi) %>% # double check that ID of tubes was 4.8cm 
+
+  filter(rock_mass >= 0) %>%
+  mutate(rock_relative = rock_mass / volume
+  ) %>%
+  filter(rock_relative != Inf) # temporary issue with 0 thicknesses from os, bc core data not yet entered with o thicknesses
+
+horizons(psm) <- h
+
+
+plotSPC(psm, 
+        name = 'name',
+        color = 'rock_relative',
+        col.label = 'g 4mm+ rock per cm^3')
+```
+
+ok data cleaning to-do
+- make depths actual; use core data to adjust bottom depths of bottommost samples. Account for shoes
+- deal with DSC_106; it needs 3 parts to be in this depth profile and they need depths assigned
+- integrate core data!!
+    - add O thicknesses
+- clean up NAs in lroot and rock masses; which are actually 0?
+- add Lroot and rock masses (with empty masses subtracted) to main psm csv
+    
+
+
+
+
+
+

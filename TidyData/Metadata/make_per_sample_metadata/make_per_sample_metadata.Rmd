@@ -54,7 +54,7 @@ sampleIDrow = which(x_transcribed_data[[1]] == "Sample_ID") # find which row # c
 colnames(x_transcribed_data) = as.character(x_transcribed_data[sampleIDrow,]) # make Sample_IDs the column names
 x_transcribed_data = x_transcribed_data %>%
   rename(futureColumn = Sample_ID) %>% # rename the first column, which actually contains all the future column names (variable names? measurement names?)
-  slice(-sampleIDrow) # important to take the sample_ID row out so pivoting doesn't get confused later
+  dplyr::slice(-sampleIDrow) # important to take the sample_ID row out so pivoting doesn't get confused later
 head(x_transcribed_data)
 
 # y and z samples
@@ -62,7 +62,7 @@ sampleIDrow = which(yz_transcribed_data[[1]] == "Sample_ID")
 colnames(yz_transcribed_data) = as.character(yz_transcribed_data[sampleIDrow,])
 yz_transcribed_data = yz_transcribed_data %>%
   rename(futureColumn = Sample_ID) %>%
-  slice(-sampleIDrow)
+  dplyr::slice(-sampleIDrow)
 
 head(yz_transcribed_data)
 ```
@@ -306,6 +306,10 @@ metadata_add_coreinfo <- metadata_add_coreinfo %>%
     sample_bottom_depth = case_when(
       fraction == "O" ~ 0,
       TRUE ~ as.numeric(str_extract(fraction, "(?<=-)\\d+"))
+    ),
+    sample_top_depth = case_when( # FIX THIS when we have good core data; ideally we'd use the o cm thickness to make top depth for Os negative
+      fraction == "O" ~ 0,
+      TRUE ~ as.numeric(str_extract(fraction, "^\\d+"))
     )
   )
 ```
