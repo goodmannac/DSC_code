@@ -1,0 +1,57 @@
+these rows not present on the original data sheet; added during transcription by AG (20260831) to help parse notes w/ inconsistent format,,,,,,,,,,,,
+Sampling_date,16 June 2026,16 June 2026,16 June 2026,16 June 2026,16 June 2026,16 June 2026,17 June 2026,17 June 2026,17 June 2026,17 June 2026,17 June 2026,17 June 2026
+Site,SOAP,SOAP,SOAP,SOAP,SOAP,SOAP,NEWT,NEWT,NEWT,NEWT,NEWT,NEWT
+Core_ID,B-E,B-R,B-H,B-U,B-F,B-S,U-M,U-Z,U-J,U-W,U-01,U-02
+closest_other_tree,Ribes sp. 3m; Inscense cedar 5m; Pondo pine 5m ,Quercus sp. (wislenzei?) 8m; Pinus ponderosa 10m,Quercus (wislezeni?) ~4m,Same Quercus (wisleznei)? 7m. Q. kelloggii 8m.,"Young PIPO 8m, Arctostaphylos 5m next to burned PIPO, Cedar 7.4m ","Young PIPO ~ 6m & 6m (two), Artostaphylos 3.4m (small)","PIPO, ARVI(?), + ceonothus, + mt. misery. All <1m, ARVI ~ 1m. + young oaks, <1m all. QUWI & QUKE","QUCH ~1M, mt. misery cover, QUWI ~3m, CEIN ~2m, >5m from U-M","Ceonothus spp. CEIN? 50cm, QUCH ~1m, Ceonothus spp. bigger - ~1m, mt. misery all around, other PIPO ~2m. Big QUKE also relevant upslope, roughly 6m from core. ","Manzanita 2m, QUCH and QUKE 4m, Lots of mountian misery. BIG QUKE about 8m upslope.","QUWI ~4m, Artostaphylos 1.5m and 3m away -- took care on Arctostaphylos side.","Arctostaphylos 2m away in two directions, also Ceonothus just behind Arctostaphylos"
+core_notes,"Deepest samples on ice 10:35AM (first segment); length of sleeve: 146 cm; length of ""shoe""; 7.0 cm",Refusal @ 4ft; got 99cm soil from 122cm push; lots of gopher activity B-R & B-E,Diff. alluvial terrance from other core pairs; Hit water @ bottom,"Bottom of first segment quite compacted, had to chip out shoe w/ rock hammer",,,,,,,changed target tree to avoid gravel/road fill,
+landscape_photo_by,LB,same as B-E,LB,,LB,,,,,,LB,LB
+surface_photo_by,LB,GB,GB,,GB,,AG,,,,,
+O_depth_cm,0,0,0,0,0,0,3,1,0,1.5,2,7.5
+O_notes,"No O but kept litter for carbon at 4C; Glade using 15cm diam collar, taking pseudo-O adjascent to core ",No O but kept for carbon at 4C,,,"Lots fo ground squirrels, cow paddies",,"""actually litter"" ""mostly litter w/ a little bit of OM"" - Glade",,"all litter, no sieve, likely some upslope -> this is on slope",,,We found only 3cm O horizon in sleeve; measured 7.5cm w/ fat daddio nearby [where O material was collected for analysis)
+Sample_ID_O,DSC_008,DSC_079,DSC_087,DSC_088,DSC_011,DSC_083,DSC_094,DSC_095,DSC_104,DSC_105,DSC_044,DSC_106
+segment_1_arrival_time,10:25 AM,11:30 AM,13:55,14:43,12:00 PM,13:30,10:01,13:33,15:50,16:18,2:40 PM,15:28
+segment_1_photo_by,GB,GB,,LB,,"LB, GB",GB,GB,,,GB,
+segment_1_tube_length_cm,146,122,146,146,146,146,146,146,146,146,146,146
+segment_1_soil_length_cm,101,99,105,91,119,121,117,127,128,109,103,103
+segment_1_compaction_factor,0.69,0.81,0.72,0.62,0.81,0.83,0.8,0.87,0.88,0.75,0.7,0.71
+segment_1_notes,"True top depth seg. 1: 0cm. True bottom depth seg. 1 before ""boot"": 146 cm. True bottom depth w/ boot: 153 cm",,105 cm soil s/b 146cm,,,,"spodisol! glade excited; measuring O distance, removing from core + discarding",,,,,
+Sample_ID_0-15cm,DSC_071,DSC_080,DSC_091,DSC_031,DSC_012,DSC_018,DSC_096,DSC_038,DSC_048,DSC_112,DSC_107,DSC_047
+bottom_depth_in_sleeve_cm_0-15cm_sample,10.4,12.2,10.8,9.3,12.2,12.45,12,13.07,13.2,11.25,10.5,10.7
+Sample_ID_15-30cm,DSC_072,DSC_009,DSC_023,DSC_092,DSC_084,DSC_089,DSC_035,DSC_102,DSC_110,DSC_052,DSC_045,DSC_108
+bottom_depth_in_sleeve_cm_15-30cm_sample,20.8,24.3,21.6,18.6,24.3,24.9,40,26.1,26.4,22.5,21,21.3
+Sample_ID_30-50cm,DSC_073,DSC_081,DSC_024,DSC_093,DSC_013,DSC_090,DSC_036,DSC_103,DSC_111,DSC_053,DSC_046,DSC_10
+bottom_depth_in_sleeve_cm_30-50cm_sample,34.5,40.5,36,31,40.5,41.5,40,43.5,44,37.5,35,35.5
+Sample_ID_50-100cm,DSC_074,DSC_010,DSC_025,DSC_032,DSC_085,DSC_019,DSC_037,DSC_039,DSC_049,DSC_054,DSC_126,DSC_130
+bottom_depth_in_sleeve_cm_50-100cm_sample,69,81,72,62,81,83,80,87,88,75,70,71
+Sample_ID_100-150cm,DSC_075,DSC_082,DSC_026,DSC_033,DSC_014,DSC_020,DSC_097,DSC_040,DSC_050,DSC_055,DSC_127,DSC_131
+bottom_depth_in_sleeve_cm_100-150cm_sample,103.5,99,108,93,121.5,end,120,130.5,132,112.5,105,106.5
+segment_1_other_notes,"[pointing to Sample_ID_100-150cm] took to 100 instead of 103.5 w/x sample above; also have whirl top DSC_075 w/ soil from bottom of ""shoe""","No segment 2, hit refusal @ 122 cm + 7cm shoe","[pointing to bottom_depth_in_sleeve_cm_100-150cm] (sleeve to 106, then shoe)",[pointing to bottom_depth_in_sleeve_cm_100-150cm] (end + shoe),[pointing to bottom_depth_in_sleeve_cm_100-150cm] (sleeve to 118.5),"[pointing to Sample_Id_100-150cm] CAP FELL OFF IN COOLER, NOT WET. RETURNING SPILLED SAMPLE TO CORE","[pointing to bottom_depth_in_sleeve_cm_100-150cm_sample] core ends @ 116, w/shoe @ 123",,,[pointing to bottom_depth_in_sleeve_cm_100-150cm_sample] (end w/shoe),[pointing to bottom_depth_in_sleeve_cm_100-150cm_sample] (complete w/shoe),"[pointing to bottom_depth_in_sleeve_cm_50-100cm_sample] On 50 cm end, little bit of 80% ethanol got into core from hacksaw;  [pointing to bottom_depth_in_sleeve_cm_100-150cm_sample] end of segment"
+segment_1_shoe_cm,7,7,specification unclear,not clarified,not explicitly stated,not explicitly stated,7,not explicitly stated,not explicitly stated,not explicitly stated,not explicitly stated,not explicitly stated
+segment_2_arrival_time,10:45 AM,,14:05,14:55,12:05,13:37,10:10,,15:58,16:25,14:50,15:33
+segment_2_photo_by,GB,,GB,,GB,,"AG, GB",,,,,
+segment_2_notes,"Second segment: 29 cm ""slough"" discarded from top, 117 cm core remain. True top depth: 153 cm. True bottom w/ boot: 306 cm; Compaction on 2nd push: 117/146 = 0.8; All samples from seg. 2 on ice 11:00AM end of core: 117 + 7cm from ""boot"" or ""shoe""",,,removed 14 cm slough; needs careful removal in lab; 49 cam of rock + shoe,,"refusal @ 9ft; Got 117 cm s/b 122cm (4ft); minimal slough, but discarded top 2cm to be safe.; Seg 2: dead grass & dark soil around 200 cm; ground squirrel den?","removing 9cm from top, calling slough. AG has photo","no compaction. 150-200, 200- 279; 79 sleeve +7 shoe; [pointing at the number 79 in the previous note] 86 cm in seg. 2, 14 from seg. 3",24 cm slough,refusal @ 6.5 ft,18 cm slough; seg. 2: 200 - 279 cm + shoe = 286 cm + 14 cm from seg. 3,10ft refusal! ; [pointing to Sample_ID_200-300cm] this segment of the sleeve +7cm shoe is 86.5cm long --> represents 200 - 291 cm
+segment_2_tube_length_cm,146,,,,,122,,,,,,148 [probably a mistake; should have been 146 and compaction factor appears to have been calculated using 146]
+segment_2_soil_length_cm,117,,,,,117,,,,,,138
+segment_2_compaction_factor,0.8,,none,none,minimal (0),0.96,no compaction,no compaction,0,,none,0.95
+Sample_ID_150-200cm,DSC_076,,DSC_027,DSC_034,DSC_086,DSC_021,DSC_100,DSC_041,DSC_050,DSC_056,DSC_128,DSC_132
+bottom_depth_in_sleeve_cm_150-200cm_sample,40,,50,49,,48,,,,,,47.5
+Sample_ID_200-300cm,DSC_077,,DSC_028,NA,DSC_015,DSC_022,DSC_098,DSC_042,DSC_051,,DSC_129,not_indicated!
+bottom_depth_in_sleeve_cm_200-300cm_sample,117,,end (w/shoe),,,144,"instead of 200-300, this is 200 - 294 (6cm short)",,132,,,142.5
+segment_2_other_notes,,,,"[pointing to Sample_ID_100-150cm] 49 cm of rock + 7cm shoe *reccomend only processing sleeve, not shoe",,[unlclear attribution; maybe referring to Sample_ID_200-300cm?] 82 cm sample,,,[pointing to Sample_ID_150-200cm] Have an extra 12 cm to refusal. 150 - 212 cm,,,
+segment_2_shoe_cm,7,,not specified,7,not explicitly stated,not explicitly stated,not explicitly stated,,,,7,7
+segment_3_arrival_time,11:07 AM,,,,12:10,,10:15,,,,,
+segment_3_photo_by,,,,,LB,No seg. 3,,,,,,
+segment_3_tube_length_cm,146,,,,,,,,,,,
+segment_3_soil_length_cm,114,,,,,,,,,,,
+segment_3_compaction_factor,"""not compressed""",,,,not explicitly stated,,no compaction,,,,,
+segment_3_notes,"cool by 11:15; segment length: 32 cm; 114 cm of slough + 7cm ""boot""; not compressed",,DSC_029 & 030 may be saturated (030 definately),,refusal at 17ft. [pointing to Sample_ID_300-400cm] 400-453 cm in segment 3 (w/ shoe) 453-512 in segment 4 (including shoe).,,28 cm of slough, Refusal: 14.5'; 28 cm slough; final sample ends @ 400 cm (discarded last bit of segment & shoe),,,Seg. 3 got stuck (liner in core) so could not be reocvered; seg. 4 also too stuck to recover. Perched water table -- saturated material over rocky layer,
+Sample_ID_300-400cm,DSC_078,,DSC_029,,DSC_016,,DSC_099,DSC_043,,,,
+bottom_depth_in_sleeve_cm_300-400cm_sample,,,,,,,10:20,,,,,
+segment_4_arrival_time,,,14:18,,"not listed, but there was a segment 4!",,,,,,,
+segment_4_photo_by,,,,,,,,,,,,
+segment_4_tube_length_cm,,,,,,,,,,,,
+segment_4_soil_length_cm,,,,,,,,,,,,
+segment_4_compaction_factor,,,,,not explicitly stated,,,,,,,
+segment_4_notes,,,"Have 4 pieces of DSC_030: one double-bagged ziplock, two shoes, one segment. Liner blew in final push to refusal.",,refusal at 17ft. [pointing to Sample_ID_300-400cm] 400-453 cm in segment 3 (w/ shoe) 453-512 in segment 4 (including shoe).,,lots of slough; [pointing to Sample_ID_400-500cm] actually 406 - 473 cm,,,,,
+Sample_ID_400-500cm,,,DSC_030,,DSC_017,,DSC_101,,,,,
+bottom_depth_in_sleeve_cm_400-500cm_sample,,,,,,,,,,,,

@@ -1,0 +1,120 @@
+---
+title: "tidy_core_data"
+author: "Anna Goodman"
+date: "2026-08-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(googledrive)
+library(tidyverse)
+```
+
+
+# Get the transcribed sample data (documents from initial 4mm sieving of each sample, in the lab or field) from google drive 
+```{r}
+
+name_of_transcription_file_on_drive = "core_data_transcribed_june" # copy the file's name exactly as it appears on google drive
+
+dribble = drive_get(name_of_transcription_file_on_drive, shared_drive = 'Bogar Lab') # get necesary data for downloading
+
+local_path <- paste0("Inputs/", 
+                     name_of_transcription_file_on_drive, 
+                     "_downloaded-", 
+                     format(Sys.Date(), "%Y%m%d"), 
+                     ".csv") #define what this local file name will be, with today's date
+
+drive_download(dribble, type = "csv", path = local_path, overwrite = TRUE)
+
+core_transcribed_data = read_csv(local_path, col_names = TRUE)
+
+```
+
+# Re-orient data tables
+
+Rename the columns with their Sample_IDs:
+```{r tidy}
+# x samples
+sampleIDrow = which(core_transcribed_data[[1]] == "Core_ID") # find which row # contains all the Sample_IDs
+colnames(core_transcribed_data) = as.character(core_transcribed_data[sampleIDrow,]) # make Sample_IDs the column names
+core_transcribed_data = core_transcribed_data %>%
+  rename(futureColumn = Core_ID) %>% # rename the first column, which actually contains all the future column names (variable names? measurement names?)
+  dplyr::slice(-sampleIDrow) # important to take the sample_ID row out so pivoting doesn't get confused later
+head(core_transcribed_data)
+```
+
+Pivot to get sample_ID as its own column and all the measurements in rows
+```{r}
+core_transcribed_data_pivoted = core_transcribed_data %>%
+  pivot_longer(cols = !futureColumn, 
+               names_to = "Core_ID", 
+               values_to = "value"
+               ) %>% # pivot longer first, making a column called Core_ID
+  pivot_wider(names_from = futureColumn, 
+              values_from = value) # then wider, making each variable its own column
+
+head(core_transcribed_data_pivoted)
+
+```
+
+# combine each core's notes. Idk why I separated them while transcribing
+```{r}
+colnames(core_transcribed_data_pivoted)
+
+core_transcribed_data_pivoted = core_transcribed_data_pivoted %>%
+  mutate(segment_1_notes = paste0(segment_1_notes, "; ", segment_1_other_notes),
+         segment_2_notes = paste0(segment_2_notes, "; ", segment_2_other_notes),
+         ) %>%
+  select(!c(segment_1_other_notes, segment_2_other_notes))
+```
+
+# Assign bottom depths!
+```{r}
+# find deepest sample
+
+core_data_w_bottom_depth = core_transcribed_data_pivoted %>%
+  mutate(deepest_sample = case_when(
+         !is.na(`Sample_ID_400-500cm`) ~ "400-500cm",
+         !is.na(`Sample_ID_300-400cm`) ~ "300-400cm",
+         !is.na(`Sample_ID_200-300cm`) ~ "200-300cm",
+         !is.na(`Sample_ID_150-200cm`) ~ "150-200cm",
+         !is.na(`Sample_ID_100-150cm`) ~ "100-150cm",
+         .default = "false or unmatched"
+         ))
+
+core_data_w_bottom_depth %>% select(c(deepest_sample, Core_ID))
+
+df = data.frame(deepest_sample = c("400-500cm","300-400cm","200-300cm","150-200cm","100-150cm"), deepest_segment = c(4, 3, 2, 2, 1))
+
+core_data_w_bototm_notes = core_data_w_bottom_depth %>% 
+  left_join(df, by = "deepest_sample") %>%
+  mutate(bottom_notes = case_when(
+    deepest_segment == 4 ~ segment_4_notes,
+    deepest_segment == 3 ~ segment_3_notes,
+    deepest_segment == 2 ~ segment_2_notes,
+    deepest_segment == 1 ~ segment_1_notes,
+  )) %>%
+  select(c(deepest_sample, Core_ID, bottom_notes))
+
+head(core_data_w_bototm_notes)
+
+# input bottom depth
+
+core_data_w_bottom_depth = core_data_w_bottom_depth %>%
+  mutate(true_bottom_depth_cm = case_when(
+    Core_ID == "U-02" ~ 291, # because it says so clearly in the segment_2_notes
+    Core_ID == "U-01" ~ 279, # because it says so clearly in the segment_2_notes. Segments 3 and 4 were pushed to but liner got stuck and samples couldn't be recovered
+    Core_ID == "U-M" ~ 473,  # because it says so clearly in the segment_4_notes
+    Core_ID == "U-Z" ~ 400, # because it says so clearly in the segment_3_notes
+    Core_ID == "U-J" ~ 212,
+    Core_ID == "U-W" ~ 197,
+    Core_ID == "B-R" ~ 129,
+    
+  )
+
+```
+
