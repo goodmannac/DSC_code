@@ -1,0 +1,13 @@
+Core_ID,depth_estimate,depth_info_source,tnt,Site,microsite
+B-E,209,extrapolated from other notes,tree,SOAP,S1
+B-F,512,noted in-field,tree,SOAP,S2
+B-H,612,extrapolated from other notes,tree,SOAP,S3
+B-R,129,noted in-field,no_tree,SOAP,S1
+B-S,274,noted in-field,no_tree,SOAP,S2
+B-U,202,extrapolated from other notes,no_tree,SOAP,S3
+U-01,286,noted in-field,tree,NEWT,N3
+U-02,291,noted in-field,no_tree,NEWT,N3
+U-J,212,noted in-field,tree,NEWT,N2
+U-M,473,noted in-field,tree,NEWT,N1
+U-W,198,noted in-field,no_tree,NEWT,N2
+U-Z,442,noted in-field,no_tree,NEWT,N1

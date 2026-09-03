@@ -34,7 +34,7 @@ core_transcribed_data = read_csv(local_path, col_names = TRUE)
 
 ```
 
-# Re-orient data tables
+# Make core_transcribed_data_pivoted (pivot so cores are rows)
 
 Rename the columns with their Sample_IDs:
 ```{r tidy}
@@ -61,7 +61,7 @@ head(core_transcribed_data_pivoted)
 
 ```
 
-# combine each core's notes. Idk why I separated them while transcribing
+combine each core's notes. Idk why I separated them while transcribing
 ```{r}
 colnames(core_transcribed_data_pivoted)
 
@@ -72,11 +72,13 @@ core_transcribed_data_pivoted = core_transcribed_data_pivoted %>%
   select(!c(segment_1_other_notes, segment_2_other_notes))
 ```
 
-# Assign bottom depths!
+# In pursuit of bottom depths:
+
+## Figure out how many segments each core had
 ```{r}
 # find deepest sample
 
-core_data_w_bottom_depth = core_transcribed_data_pivoted %>%
+core_data_w_bottom_sample = core_transcribed_data_pivoted %>%
   mutate(deepest_sample = case_when(
          !is.na(`Sample_ID_400-500cm`) ~ "400-500cm",
          !is.na(`Sample_ID_300-400cm`) ~ "300-400cm",
@@ -86,35 +88,280 @@ core_data_w_bottom_depth = core_transcribed_data_pivoted %>%
          .default = "false or unmatched"
          ))
 
-core_data_w_bottom_depth %>% select(c(deepest_sample, Core_ID))
+core_data_w_bottom_sample %>% select(c(deepest_sample, Core_ID))
 
 df = data.frame(deepest_sample = c("400-500cm","300-400cm","200-300cm","150-200cm","100-150cm"), deepest_segment = c(4, 3, 2, 2, 1))
 
-core_data_w_bototm_notes = core_data_w_bottom_depth %>% 
+core_data_w_bototm_notes = core_data_w_bottom_sample %>% 
   left_join(df, by = "deepest_sample") %>%
   mutate(bottom_notes = case_when(
     deepest_segment == 4 ~ segment_4_notes,
     deepest_segment == 3 ~ segment_3_notes,
     deepest_segment == 2 ~ segment_2_notes,
     deepest_segment == 1 ~ segment_1_notes,
-  )) %>%
-  select(c(deepest_sample, Core_ID, bottom_notes))
+  )) 
 
 head(core_data_w_bototm_notes)
+```
 
-# input bottom depth
+## Make a segment table (segments are rows)
+```{r}
+# this part written with gemini
+seg_table = core_data_w_bototm_notes %>%
+  mutate(across(starts_with("segment_"), as.character)) %>%
+  pivot_longer(
+    cols = starts_with("segment_"),
+    names_to = c("seg_num", ".value"),
+    names_pattern = "segment_(\\d+)_(.*)" # uses "regular expressions" to extract two pieces from the column names; (\\d+) captures seg_num, and (.*) captures the variable name. because names_to has ".value" in this position it makes each variable name into a column?
+    ) %>%
+  # Convert numeric columns back to numeric after pivoting
+  mutate(across(c(ends_with("_cm"), compaction_factor), as.numeric)) %>%
+  # Create Segment_ID and place key columns at the front
+  mutate(
+    Segment_ID = paste(Core_ID, seg_num, sep = "_"),
+    .before = 1
+  ) %>%
+  relocate(seg_num, .after = Core_ID)
 
-core_data_w_bottom_depth = core_data_w_bottom_depth %>%
-  mutate(true_bottom_depth_cm = case_when(
-    Core_ID == "U-02" ~ 291, # because it says so clearly in the segment_2_notes
-    Core_ID == "U-01" ~ 279, # because it says so clearly in the segment_2_notes. Segments 3 and 4 were pushed to but liner got stuck and samples couldn't be recovered
-    Core_ID == "U-M" ~ 473,  # because it says so clearly in the segment_4_notes
-    Core_ID == "U-Z" ~ 400, # because it says so clearly in the segment_3_notes
-    Core_ID == "U-J" ~ 212,
-    Core_ID == "U-W" ~ 197,
-    Core_ID == "B-R" ~ 129,
+seg_info_only = seg_table %>% 
+  select(Segment_ID, seg_num, Core_ID, soil_length_cm, tube_length_cm, compaction_factor, notes, shoe_cm, core_notes, deepest_segment)
+```
+
+## Manually extract segment-level info from freeform notes
+Including: length of sleeve, length of soil in sleeve, the compaction factor we calculated in the field, the true segment top and bottom depths if they're noted, how many cm of slough we noted (and removed)
+```{r}
+manual_note_transcription <- tribble(
+  ~Segment_ID, ~soil_length_cm, ~sleeve_length_cm, ~compaction_factor, ~noted_true_top_cm, ~noted_true_bottom_cm_noboot, ~noted_true_bottom_cm_w_boot, ~noted_slough_cm,
+  "B-E_1",     101,             146,               0.69,               0,                  146,                          153,                          NA,
+  "B-E_2",     117,             146,               0.80,               153,                NA,                           306,                          29,
+  "B-E_3",     32,             146,               NA,                 NA,                 NA,                           NA,                           114, # I think soil_length is NOT including slough here, based on the notes
+#  "B-E_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did not exist. only 3 segments on B-E
+  "B-R_1",     99,              122,               0.81,               NA,                 122,                           NA,                           NA, 
+#  "B-R_2",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA,# did not exist. only 1 segment on B-R
+#  "B-R_3",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA,# did not exist. only 1 segment on B-R
+#  "B-R_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA,# did not exist. only 1 segment on B-R
+  "B-H_1",     105,             146,               0.72,               NA,                 NA,                           NA,                           NA,
+  "B-H_2",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted
+  "B-H_3",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted
+  "B-H_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # may include components of DSC_030? Final push to refusal for this core in this segment. No notes about how long this segment was.
+  "B-U_1",     91,              146,               0.62,               NA,                 NA,                           NA,                           NA, # mentions that last sample includes shoe
+  "B-U_2",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           14, # mentions that last sample includes shoe
+#  "B-U_3",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # I don't think this exists based on original data sheet
+#  "B-U_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # I don't think this exists based on original data sheet
+  "B-F_1",     119,             146,               0.81,               NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted
+  "B-F_2",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted
+  "B-F_3",     NA,              NA,                NA,                 NA,                 NA,                           453,                           NA, 
+  "B-F_4",     NA,              NA,                NA,                 453,                 NA,                           512,                           NA, # "refusal at 17 ft" = (17 x 12 x 2.54 =) 518 cm, which is similar to 512. Ft measurement was probably a coarser estimate, retaining explicitly noted 512cm as true bottom depth.
+  "B-S_1",     121,             146,               0.83,               NA,                 NA,                           NA,                           NA,
+  "B-S_2",     117,             122,               0.96,               NA,                 NA,                           274,                           2, # "refusal at 9 ft" = (19 x 12 x 2.54 =) 274.32 cm. I'm inputting 274 as noted true bottom depth -- with boot, though I'm not sure if that's correct
+#  "B-S_3",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # I don't think this exists based on original data sheet
+#  "B-S_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # I don't think this exists based on original data sheet
+  "U-M_1",     117,             146,               0.80,               NA,                 116,                           123,                           NA,
+  "U-M_2",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           9,
+  "U-M_3",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           28,
+  "U-M_4",     NA,              NA,                NA,                 NA,                 NA,                           473,                           NA, # "lots of slough"
+  "U-Z_1",     127,             146,               0.87,               NA,                 NA,                           NA,                           NA,
+  "U-Z_2",     NA,              NA,                NA,                 NA,                 279,                           286,                           NA,
+  "U-Z_3",     NA,              NA,                NA,                 NA,                 NA,                           442,                           28, # "refusal at 14.5 ft" = (14.5 x 12 x 2.54 = 441.96) ~= 442cm. Notes say "final sample ends @ 400cm (discarded last bit of segment and shoe)"; but the HOLE bottom depth was @ refsual so I'm putting 442 as noted true bottom. The bottom sample bottom (DSC_043) is 400cm. Did we do this for any others, in parallel situations were we keeping those 42cm as the 400-500cm fraction?
+#  "U-Z_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # I don't think this exists based on original data sheet
+  "U-J_1",     128,             146,               0.88,               NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted
+  "U-J_2",     NA,              NA,                NA,               NA,                 NA,                           212,                           24, # Unclear if this bottom depth is with or without boot; it says "have an extra 12 cm to refusal. 150 - 212 cm" in reference to the 150-200cm sample. I can't tell if "to refusal" considered boot material, or if boot material was included with this sample.
+#  "U-J_3",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did not exist
+#  "U-J_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did not exist
+  "U-W_1",     109,             146,               0.75,               NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted 
+  "U-W_2",     NA,              NA,                NA,                 NA,                 NA,                           198,                           NA, # did exist, depth notation unclear; "refusal at 6.5 feet" could mean the true bottom depth is 198 cm (6.5ft x 12in/ft x 2.54cm/in) but unclear whether the shoe was discussed
+#  "U-W_3",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did not exist
+#  "U-W_4",     NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did not exist
+  "U-01_1",    103,             146,               0.70,               NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted 
+  "U-01_2",    NA,              NA,                NA,                 200,                 279,                           286,                           18,
+  "U-01_3",    NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # liner got stuck, soil unrecoverable
+  "U-01_4",    NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # liner got stuck, soil unrecoverable
+  "U-02_1",    103,             146,               0.71,               NA,                 NA,                           NA,                           NA, # did exist, but no depths or slough noted 
+  "U-02_2",    138,             146,               0.95,               NA,                 NA,                           291,                           NA # says 10ft refusal (= 305cm, as 10ft x 12in/ft x 2.54cm/in = 304.8 cm), but notes say bottommost sample (200-300cm fraction) has true bottom depth w boot of 291 cm.291 and 304 are close enought that I'll assume the 10ft was a rounded estimate and 291 is more accurate
+#  "U-02_3",    NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA, # did not exist
+#  "U-02_4",    NA,              NA,                NA,                 NA,                 NA,                           NA,                           NA # did not exist
+)
+
+seg_notes_organized <- seg_info_only %>%
+  select(-c(soil_length_cm, tube_length_cm, compaction_factor)) %>% # drops old columns to avoid duplication
+  left_join(manual_note_transcription, by = "Segment_ID")
+```
+
+## Try to summarise bottom depths a few different ways
+
+how many were noted explictly in the field
+```{r}
+noted_bottoms = seg_notes_organized %>% 
+  filter(seg_num == deepest_segment) %>% 
+  select(Core_ID, noted_true_bottom_cm_w_boot, noted_true_bottom_cm_noboot) %>%
+  mutate(noted_bottom_noboot_plus_7 = noted_true_bottom_cm_noboot + 7)
+
+noted_bottoms
+```
+
+can we calculate them from soil lengths + compaction factors?
+```{r}
+calcd_bottoms = seg_notes_organized %>% 
+  filter(seg_num >= deepest_segment) %>%
+  group_by(Core_ID) %>%
+  summarise(calcd_bottoms = sum((soil_length_cm-noted_slough_cm)/compaction_factor))
+
+calcd_bottoms
+```
+ok we'll need to fill in a lot of NAs to do this.
+Assumptions:
+ - if compaction_factor is NA, it wasn't compacted
+ - if sleeve_length_cm is NA, it was 146cm 
+ - if compaction_factor is NA, soil_length_cm = sleeve length_cm
+ - if noted_slough_cm is NA, there was no slough and nothing was discarded
+```{r}
+default_info_df = seg_notes_organized %>%
+  mutate(
+    compaction_factor = case_when(
+    is.na(compaction_factor) ~ 1,
+    .default = compaction_factor),
     
+    sleeve_length_cm = case_when(
+    is.na(sleeve_length_cm) ~ 146,
+    .default = sleeve_length_cm), 
+    
+    soil_length_cm = case_when(
+    compaction_factor == 1 ~ sleeve_length_cm,
+    .default = soil_length_cm),
+    
+    noted_slough_cm = case_when(
+    is.na(noted_slough_cm) ~ 0,
+    .default = noted_slough_cm)
   )
 
+default_info_df
+
+calcd_bottom_df = default_info_df %>%
+  
+  filter(seg_num <= deepest_segment) %>%
+  
+  group_by(Core_ID) %>%
+  
+  summarise(
+    # calcd_bottoms_sub_sl = sum((soil_length_cm-noted_slough_cm)/compaction_factor + 7), # this assumes that noted versions of soil_length_cm INCLUDE noted slough length as they were handwritten, so I'm taking them out
+  #  calcd_bottoms_ignore_sl = sum((soil_length_cm/compaction_factor) + 7) # this assumes noted versions of soil_length_cm EXCLUDED noted slough length as they were handwritten; assumes core crew accounted for slough when they wrote down the length of soil in the segment
+    calcd_bottoms = sum(sleeve_length_cm - noted_slough_cm + 7)
+  )
+
+calcd_bottom_df
 ```
+ 
+compare bottom depths
+```{r}
+depth_comp = calcd_bottom_df %>%
+  left_join(noted_bottoms, by = "Core_ID")
+
+depth_comp = depth_comp %>% mutate(
+  noted_bottom = case_when(
+    is.na(noted_bottom_noboot_plus_7) ~ noted_true_bottom_cm_w_boot,
+    is.na(noted_true_bottom_cm_w_boot) ~ noted_bottom_noboot_plus_7,
+    .default = noted_true_bottom_cm_w_boot
+  ),
+  diff = calcd_bottoms - noted_bottom) %>%
+  select(c(Core_ID, diff, calcd_bottoms, noted_bottom))
+
+depth_comp # all of the differences are under 153, which means it's possible that this is just what happened when we hit refusal in the middle of the deepest segment
+```
+
+```{r}
+bottom_segs = default_info_df %>%
+  filter(seg_num == deepest_segment)
+
+bottom_segs 
+
+#ok so the depth comparison above is assuming (based on default_info_df) that the sleeve length for the bottom cores is 146 when not otherwise noted -- this is not true! but we don't have sleeve length noted for most of these, just refusal depth in feet. In a few cases we don't have either
+```
+
+```{r}
+depth_est = depth_comp %>%
+  mutate(depth = case_when(
+    is.na(noted_bottom) ~ calcd_bottoms,
+    .default = noted_bottom),
+    info = case_when(
+    is.na(noted_bottom) ~ "extrapolated from other notes",
+    .default = "noted in-field")
+    ) %>%
+  select(c(Core_ID, depth, info))
+
+# can we make the calculated ones more acurate with noted bottom sample lengths?
+depth_est = depth_est %>%
+  mutate(depth = case_when(
+    Core_ID == "B-U" ~ 
+      (depth - 146 + 49 + 7 ), # take off default length added for bottom segment, " 49 cm of rock and shoe",
+    Core_ID == "B-E" ~ 
+      (depth - 146 + 32 + 7 ),  # take off default length added for bottom segment, "segment length: 32 cm"
+    .default = depth
+  ))
+
+depth_est
+```
+
+```{r}
+depth_est_4fig = depth_est %>% 
+  rename(name = Core_ID,
+         id = Core_ID,
+         bottom = depth) %>%
+  mutate(top = 0)
+
+depths(depth_est_4fig) <- id ~ top + bottom
+
+plotSPC(depth_est_4fig, 
+        name = 'name')
+```
+
+```{r}
+
+psm_noO = read_rds("../../../Analysis/early_data_exploration/Results/plotSPC_object_June_noO.rds")
+
+```
+
+
+```{r}
+
+psm_noO <- subsetHz(psm, bottom != 0)
+
+h_psm <- horizons(psm_noO) %>%
+  select(c(id, tnt, Site, microsite))
+
+h_depthest <- horizons(depth_est_4fig)
+
+
+cores_only = left_join(h_depthest, h_psm, by = "id", multiple = "any") 
+
+
+cores_only
+
+# 3. Build hierarchical plot order (Site, then microsite)
+hierarchical_order <- order(cores_only$Site, cores_only$microsite)
+
+# Re-assign using replaceHorizons to enforce validation
+replaceHorizons(depth_est_4fig) <- cores_only
+
+plotSPC(depth_est_4fig, 
+        color = 'tnt',
+        col.label = '',
+        plot.order = hierarchical_order,
+        col.palette = hcl.colors(2, "Harmonic"))
+```
+clean up csv to give to david
+```{r}
+cores_only_4csv = cores_only %>%
+  rename(depth_estimate = bottom,
+         depth_info_source = info,
+         Core_ID = id) %>%
+  select(!c(top, hzID))
+
+cores_only_4csv
+
+write_csv(cores_only_4csv, "Results/BogarDSC_coredepths_June2026.csv")
+```
+
+
+
+
 

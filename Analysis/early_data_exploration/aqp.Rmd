@@ -145,7 +145,34 @@ ok data cleaning to-do
 - clean up NAs in lroot and rock masses; which are actually 0?
 - add Lroot and rock masses (with empty masses subtracted) to main psm csv
     
+# Make crude rock mass plot
+```{r}
 
+psm_noO <- subsetHz(psm, bottom != 0)
+
+# Extract and filter
+h <- horizons(psm_noO)
+
+h$Sample_ID
+
+# 3. Build hierarchical plot order (Site, then microsite)
+hierarchical_order <- order(h_site_info$Site, h_site_info$microsite)
+
+# Re-assign using replaceHorizons to enforce validation
+replaceHorizons(psm) <- noO
+
+plotSPC(psm_noO, 
+        color = 'tnt',
+        col.label = '',
+        plot.order = hierarchical_order,
+        col.palette = hcl.colors(2, "Harmonic"))
+```
+
+```{r}
+write_rds(psm, "Results/plotSPC_object_June.rds")
+write_rds(psm_noO, "Results/plotSPC_object_June_noO.rds")
+
+```
 
 
 
