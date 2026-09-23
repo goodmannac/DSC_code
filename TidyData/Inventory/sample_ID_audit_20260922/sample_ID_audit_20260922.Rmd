@@ -1,0 +1,136 @@
+---
+title: "sept_YZ_sample_ID_audit"
+author: "Anna Goodman"
+date: "2026-09-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(googledrive)
+```
+
+
+```{r}
+
+name_of_transcription_file_on_drive = "core_data_sept_transcribed20260922_AG" # copy the file's name exactly as it appears on google drive
+
+dribble = drive_get(name_of_transcription_file_on_drive, shared_drive = 'Bogar Lab') # get necesary data for downloading
+
+local_path <- paste0("Inputs/", 
+                     name_of_transcription_file_on_drive, 
+                     "_downloaded-", 
+                     format(Sys.Date(), "%Y%m%d"), 
+                     ".csv") #define what this local file name will be, with today's date
+
+drive_download(dribble, type = "csv", path = local_path, overwrite = TRUE)
+
+core_transcribed_data = read_csv(local_path, col_names = TRUE)
+
+```
+
+```{r}
+sept_sids = select(core_transcribed_data, c(Sample_ID, Core_ID, fraction, other_notes, extra_pieces))
+```
+
+```{r}
+sept_sids = sept_sids %>%
+  filter(Sample_ID != "does_not_exist")
+
+sept_sid_list = sept_sids$Sample_ID
+
+length(sept_sid_list)
+
+OX = sept_sids %>%
+  filter(fraction %in% c("O",
+                         "0-15_cm",
+                         "15-30_cm",
+                         "30-50_cm"))
+length(OX$Sample_ID)
+
+YZ = sept_sids %>%
+  filter(fraction %in% c("50-100_cm",
+                         "100-150_cm",
+                         "150-200_cm",
+                         "200-300_cm",
+                         "300-400_cm",
+                         "400-500_cm"))
+
+length(YZ$Sample_ID)
+
+```
+
+```{r}
+done_YZ_nums = 
+  c(352,
+    329,
+    335,
+    337,
+    259,
+    331,
+    341,
+    246,
+    359,
+    349,
+    340,
+    333,
+    350,
+    334,
+    261,
+    355,
+    356,
+    343,
+    348,
+    252,
+    240,
+    251,
+    245,
+    353,
+    250,
+    336,
+    358,
+    338,
+    258,
+    254,
+    332,
+    # 20260922:
+    242,
+    249,
+    357,
+    255,
+    339,
+    243,
+    262,
+    241,
+    351,
+    260,
+    244,
+    239,
+    238)
+
+done_YZ_nums = lapply(done_YZ_nums, as.character)
+
+make_sid = function(num) {
+  paste0("DSC_", num)
+  }
+done_YZ_nums = lapply(done_YZ_nums, make_sid)
+```
+
+```{r}
+YZ_done = YZ %>%
+  filter(Sample_ID %in% done_YZ_nums)
+
+YZ_not_done = YZ %>%
+  filter(!(Sample_ID %in% done_YZ_nums))
+
+#done_YZ_nums = data.frame(Sample_ID = done_YZ_nums)
+#YZ_update = left_join(YZ, done_YZ_nums, by = "Sample_ID")
+```
+
+
+
+
