@@ -131,6 +131,17 @@ YZ_not_done = YZ %>%
 #YZ_update = left_join(YZ, done_YZ_nums, by = "Sample_ID")
 ```
 
+```{r}
+duplicated(sept_sids$Sample_ID)
+
+duplicated_sids = sept_sids %>%
+  filter(duplicated(Sample_ID))
+
+duplicated_sids
+
+```
+
+
 
 
 
